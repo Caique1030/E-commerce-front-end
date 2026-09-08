@@ -16,15 +16,16 @@ interface GraficoBarrasProps {
   className?: string;
 }
 
-/** Escala do eixo Y com no máximo 4 linhas em valores redondos. */
-function escala(maximo: number): number[] {
+/** Escala do eixo Y em valores redondos: no máximo 4 faixas (5 linhas, contando o zero). */
+export function escala(maximo: number): number[] {
   if (maximo <= 0) return [0];
   const bruto = maximo / 4;
   const potencia = 10 ** Math.floor(Math.log10(bruto));
   const passo = [1, 2, 2.5, 5, 10].map((m) => m * potencia).find((p) => p >= bruto) ?? potencia;
-  const linhas: number[] = [];
-  for (let v = 0; v <= maximo + passo; v += passo) linhas.push(v);
-  return linhas;
+  // Arredonda o topo para cima até o próximo passo. Somar um passo fixo criaria uma faixa
+  // vazia sempre que o máximo já fosse múltiplo exato do passo.
+  const faixas = Math.ceil(maximo / passo);
+  return Array.from({ length: faixas + 1 }, (_, i) => i * passo);
 }
 
 function compacto(centavos: number): string {

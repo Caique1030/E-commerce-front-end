@@ -4,10 +4,14 @@ import type { AtualizarCategoria, CriarCategoria } from '@/lib/schemas/categoria
 import type { Categoria } from '@/lib/tipos';
 import { api } from './cliente';
 
+/** A árvore quase não muda; no servidor vale um cache mais longo que o do catálogo. */
+const REVALIDAR_ARVORE = 300;
+
 export const categoriasApi = {
   arvore: (incluirInativas = false) =>
     api<Categoria[]>('/categorias', {
       query: { incluirInativas: incluirInativas ? 'true' : undefined },
+      revalidar: REVALIDAR_ARVORE,
     }),
 
   criar: (dados: CriarCategoria) => api<Categoria>('/categorias', { method: 'POST', body: dados }),

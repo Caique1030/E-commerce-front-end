@@ -13,6 +13,7 @@ import { useAtualizarPerfil } from '@/lib/hooks/use-usuarios';
 import {
   formularioNomeSchema,
   formularioSenhaSchema,
+  updateMeSchema,
   type FormularioNome,
   type FormularioSenha,
 } from '@/lib/schemas/usuario';
@@ -66,7 +67,7 @@ function FormularioNome({ nomeAtual }: { nomeAtual: string }) {
 
   async function aoEnviar(dados: FormularioNome) {
     try {
-      const u = await atualizar.mutateAsync({ nome: dados.nome });
+      const u = await atualizar.mutateAsync(updateMeSchema.parse({ nome: dados.nome }));
       form.reset({ nome: u.nome });
       notificar({ tipo: 'sucesso', titulo: 'Nome atualizado.' });
     } catch (erro) {
@@ -112,7 +113,9 @@ function FormularioSenhaConta() {
 
   async function aoEnviar(dados: FormularioSenha) {
     try {
-      await atualizar.mutateAsync({ senhaAtual: dados.senhaAtual, novaSenha: dados.novaSenha });
+      await atualizar.mutateAsync(
+        updateMeSchema.parse({ senhaAtual: dados.senhaAtual, novaSenha: dados.novaSenha }),
+      );
       form.reset();
       notificar({ tipo: 'sucesso', titulo: 'Senha alterada.' });
     } catch (erro) {

@@ -22,11 +22,17 @@ export function gerarSlug(texto: string): string {
     .slice(0, 80);
 }
 
-/** Só aceita caminhos relativos do próprio site: evita redirecionamento aberto via ?voltar=. */
+/**
+ * Só aceita caminhos relativos do próprio site: evita redirecionamento aberto via ?voltar=.
+ *
+ * Tab, LF e CR são removidos antes da checagem porque o parser de URL os descarta: sem isso,
+ * "/<TAB>/evil.com" passa pelo teste de prefixo e depois vira "//evil.com" (outro site).
+ */
 export function destinoSeguro(valor: string | null | undefined, padrao = '/'): string {
   if (!valor) return padrao;
-  if (!valor.startsWith('/') || valor.startsWith('//') || valor.startsWith('/\\')) return padrao;
-  return valor;
+  const limpo = valor.replace(/[\t\n\r]/g, '');
+  if (!limpo.startsWith('/') || limpo.startsWith('//') || limpo.startsWith('/\\')) return padrao;
+  return limpo;
 }
 
 /** Chave de idempotência: uma por tentativa de checkout. */

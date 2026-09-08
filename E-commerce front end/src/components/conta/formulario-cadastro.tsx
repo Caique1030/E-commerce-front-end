@@ -37,7 +37,11 @@ export function FormularioCadastro() {
   async function aoEnviar(dados: FormularioCadastro) {
     setErro(null);
     try {
-      await criarConta(registerSchema.parse(dados));
+      // `confirmarSenha` existe só na tela; registerSchema é strict e recusaria a chave extra.
+      // O payload é montado campo a campo, como nos outros formulários do projeto.
+      await criarConta(
+        registerSchema.parse({ nome: dados.nome, email: dados.email, senha: dados.senha }),
+      );
     } catch (e) {
       if (ehApiError(e, 'EMAIL_JA_CADASTRADO')) {
         form.setError('email', { message: 'já existe uma conta com este e-mail' });

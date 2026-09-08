@@ -33,12 +33,16 @@ export async function generateMetadata({ params }: PageProps<'/produto/[id]'>): 
  */
 export default async function ProdutoPage({ params }: PageProps<'/produto/[id]'>) {
   const { id } = await params;
+  const qc = getQueryClientServidor();
+
+  // A árvore (breadcrumbs) não depende do produto: dispara antes e só é esperada no fim.
+  const arvorePronta = qc.prefetchQuery(opcoesArvoreCategorias());
+
   const produto = await buscarProdutoServidor(id);
   if (produto === null) notFound();
-
-  const qc = getQueryClientServidor();
   if (produto) qc.setQueryData(qk.produtos.detalhe(id), produto);
-  await qc.prefetchQuery(opcoesArvoreCategorias());
+
+  await arvorePronta;
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>

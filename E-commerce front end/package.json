@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"e2e/**/*.ts\"",
-    "check": "npm run typecheck && npm run lint && npm run test"
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"e2e/**/*.ts\"",
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
+    "ci": "npm run check && npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -55,7 +57,6 @@
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^5.0.0"
   }
 }

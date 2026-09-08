@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Archivo, Fraunces } from 'next/font/google';
-import { cookies } from 'next/headers';
-import { COOKIE_MARCADOR } from '@/lib/auth/bff';
 import { DESCRICAO_LOJA, NOME_LOJA } from '@/lib/constantes';
 import { Providers } from '@/providers/providers';
 import './globals.css';
@@ -32,14 +30,22 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default async function RootLayout({ children }: LayoutProps<'/'>) {
-  // O marcador não autentica nada; só diz ao cliente se vale a pena renovar a sessão.
-  const temSessaoInicial = (await cookies()).has(COOKIE_MARCADOR);
-
+/**
+ * Layout raiz sem nenhuma API dinâmica: ler cookie aqui tirava o site inteiro do render
+ * estático (toda rota virava `ƒ`). Quem decide se há sessão é o provider, no navegador.
+ *
+ * `data-scroll-behavior="smooth"` é exigido pelo Next 16 para que o `scroll-behavior: smooth`
+ * do CSS não seja aplicado às trocas de rota — sem ele, cada paginação vira uma animação.
+ */
+export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="pt-BR" className={`${archivo.variable} ${fraunces.variable} h-full`}>
+    <html
+      lang="pt-BR"
+      data-scroll-behavior="smooth"
+      className={`${archivo.variable} ${fraunces.variable} h-full`}
+    >
       <body className="flex min-h-full flex-col">
-        <Providers temSessaoInicial={temSessaoInicial}>{children}</Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

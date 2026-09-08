@@ -11,9 +11,8 @@ import { cn } from '@/lib/utils';
  *  - Drawer: painel lateral direito, para o carrinho e filtros no mobile
  */
 
+/* Todos os diálogos do projeto são controlados (`aberto` + `aoFechar`), então só a raiz é exposta. */
 export const DialogRaiz = DialogPrimitive.Root;
-export const DialogGatilho = DialogPrimitive.Trigger;
-export const DialogFechar = DialogPrimitive.Close;
 
 interface ConteudoProps {
   titulo: string;

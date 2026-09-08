@@ -18,7 +18,7 @@ export function LinhaItemConectada(props: Props) {
       {...props}
       aoAlterarQuantidade={(itemId, quantidade) => atualizar.mutate({ itemId, quantidade })}
       aoRemover={(itemId) => remover.mutate(itemId)}
-      ocupado={false}
+      ocupado={atualizar.isPending || remover.isPending}
     />
   );
 }

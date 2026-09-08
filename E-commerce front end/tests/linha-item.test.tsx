@@ -59,6 +59,27 @@ describe('LinhaItem', () => {
     expect(aoAlterar).toHaveBeenCalledWith('item-1', 0);
   });
 
+  it('esvaziar o campo e sair não remove: volta para a quantidade atual', async () => {
+    // `Number('')` é 0, e 0 significa remover: apagar o campo para redigitar apagava o item.
+    const aoAlterar = vi.fn();
+    render(
+      <ul>
+        <LinhaItem
+          item={item({ quantidade: 3, subtotalCentavos: 30000 })}
+          aoAlterarQuantidade={aoAlterar}
+          aoRemover={vi.fn()}
+        />
+      </ul>,
+    );
+
+    const campo = screen.getByRole('textbox', { name: 'Quantidade de Fone Bluetooth XZ' });
+    await userEvent.clear(campo);
+    await userEvent.tab();
+
+    expect(aoAlterar).not.toHaveBeenCalled();
+    expect(campo).toHaveValue('3');
+  });
+
   it('aumentar chama a quantidade seguinte e "Remover" chama o callback próprio', async () => {
     const aoAlterar = vi.fn();
     const aoRemover = vi.fn();

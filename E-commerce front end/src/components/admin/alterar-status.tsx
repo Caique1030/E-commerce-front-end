@@ -7,7 +7,11 @@ import { Campo, Selecao, Textarea } from '@/components/ui/campo';
 import { mensagemDeErro } from '@/lib/api/cliente';
 import { ROTULO_STATUS, TRANSICOES } from '@/lib/constantes';
 import { useAlterarStatusPedido } from '@/lib/hooks/use-pedidos';
-import { formularioStatusSchema, type FormularioStatus } from '@/lib/schemas/pedido';
+import {
+  changeOrderStatusSchema,
+  formularioStatusSchema,
+  type FormularioStatus,
+} from '@/lib/schemas/pedido';
 import type { StatusPedido } from '@/lib/tipos';
 import { notificar } from '@/stores/ui-store';
 
@@ -45,10 +49,12 @@ export function AlterarStatus({
 
   async function aoEnviar(dados: FormularioStatus) {
     try {
-      await alterar.mutateAsync({
-        status: dados.status,
-        observacao: dados.observacao.trim() || undefined,
-      });
+      await alterar.mutateAsync(
+        changeOrderStatusSchema.parse({
+          status: dados.status,
+          observacao: dados.observacao.trim() || undefined,
+        }),
+      );
       notificar({
         tipo: 'sucesso',
         titulo: `Pedido marcado como ${ROTULO_STATUS[dados.status].toLowerCase()}.`,

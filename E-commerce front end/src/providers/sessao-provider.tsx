@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { definirToken, obterTokenAtual, registrarRenovador } from '@/lib/api/auth-token';
 import { sessaoApi } from '@/lib/api/sessao';
+import { temMarcadorSessao } from '@/lib/auth/cookies';
 import { ehEquipe } from '@/lib/constantes';
 import { qk } from '@/lib/query-keys';
 import type { DadosCadastro, DadosLogin } from '@/lib/schemas/auth';
@@ -35,20 +36,17 @@ export interface Sessao {
 
 const SessaoContext = createContext<Sessao | null>(null);
 
-interface SessaoProviderProps {
-  children: ReactNode;
-  /** Lido do cookie marcador pelo layout raiz: servidor e cliente começam no mesmo estado. */
-  temSessaoInicial: boolean;
-}
-
 /**
  * Sessão do usuário: access token em memória, refresh token em cookie httpOnly (via BFF).
- * Com o marcador presente, a página abre em "carregando" e renova em silêncio; sem ele, já
- * abre anônima, sem um 401 gratuito por visita.
+ *
+ * O marcador é lido no navegador, não no layout raiz: qualquer leitura de cookie no servidor
+ * tirava o site inteiro do render estático. O HTML sai igual para todo mundo (status
+ * "carregando") e a primeira execução do efeito resolve entre renovar e assumir anônimo —
+ * sem 401 gratuito para quem nunca entrou.
  */
-export function SessaoProvider({ children, temSessaoInicial }: SessaoProviderProps) {
+export function SessaoProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
-  const [status, setStatus] = useState<StatusSessao>(temSessaoInicial ? 'carregando' : 'anonimo');
+  const [status, setStatus] = useState<StatusSessao>('carregando');
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [expiresIn, setExpiresIn] = useState(0);
   const timerRenovacao = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -84,11 +82,16 @@ export function SessaoProvider({ children, temSessaoInicial }: SessaoProviderPro
     return () => registrarRenovador(null);
   }, [renovar]);
 
-  // Restaura a sessão ao montar (só quando o marcador diz que vale a pena tentar).
+  // Restaura a sessão ao montar. Sem marcador o resultado já é "anônimo", mas mesmo esse caso
+  // passa pela promessa: resolver de forma síncrona aqui seria um setState dentro do corpo do
+  // efeito, com o render em cascata que vem junto.
   useEffect(() => {
-    if (!temSessaoInicial) return;
     let ativo = true;
-    sessaoApi.renovar().then(
+    const promessa: Promise<SessaoPublica | null> = temMarcadorSessao()
+      ? sessaoApi.renovar()
+      : Promise.resolve(null);
+
+    promessa.then(
       (s) => {
         if (ativo) aplicarSessao(s);
       },
@@ -99,7 +102,7 @@ export function SessaoProvider({ children, temSessaoInicial }: SessaoProviderPro
     return () => {
       ativo = false;
     };
-  }, [temSessaoInicial, aplicarSessao]);
+  }, [aplicarSessao]);
 
   // Renovação proativa aos 80% da validade: o usuário nunca vê um 401 no meio de uma ação.
   useEffect(() => {

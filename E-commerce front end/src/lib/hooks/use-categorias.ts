@@ -30,18 +30,17 @@ export function useCriarCategoria() {
   });
 }
 
+/**
+ * Sem `onError` de propósito: o modal que dispara esta mutação já trata a rejeição (erro no
+ * campo quando o slug repete, toast no resto). Notificar aqui também rendia dois avisos para
+ * a mesma falha — e divergia de `useCriarCategoria`, que sempre deixou o erro para quem chama.
+ */
 export function useAtualizarCategoria() {
   const invalidar = useInvalidarCategorias();
   return useMutation({
     mutationFn: ({ id, dados }: { id: string; dados: AtualizarCategoria }) =>
       categoriasApi.atualizar(id, dados),
     onSuccess: invalidar,
-    onError: (erro) =>
-      notificar({
-        tipo: 'erro',
-        titulo: 'A categoria não foi alterada.',
-        descricao: mensagemDeErro(erro),
-      }),
   });
 }
 

@@ -1,8 +1,4 @@
-import { z } from 'zod';
-import { pt } from 'zod/locales';
-
-/** Mensagens padrão do Zod em português (as customizadas dos schemas têm prioridade). */
-z.config(pt());
+import './locale';
 
 export * from './auth';
 export * from './catalogo';

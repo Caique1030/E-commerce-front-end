@@ -4,7 +4,6 @@ import { CalendarDays, Minus, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { FaixaAgenda } from '@/components/ui/faixa-agenda';
 import { ImagemProduto } from '@/components/ui/imagem-produto';
 import { Preco } from '@/components/ui/preco';
 import { formatarAgendamentoCurto } from '@/lib/formatadores';
@@ -15,8 +14,6 @@ const QUANTIDADE_MAX = 99;
 
 export interface LinhaItemProps {
   item: ItemCarrinho;
-  /** Duração do serviço para a faixa em miniatura (o item do carrinho não traz). */
-  duracaoMin?: number | null;
   aoAlterarQuantidade: (itemId: string, quantidade: number) => void;
   aoRemover: (itemId: string) => void;
   ocupado?: boolean;
@@ -33,7 +30,6 @@ export interface LinhaItemProps {
  */
 export function LinhaItem({
   item,
-  duracaoMin,
   aoAlterarQuantidade,
   aoRemover,
   ocupado = false,
@@ -70,6 +66,18 @@ export function LinhaItem({
     else setTexto(String(item.quantidade));
   }
 
+  /**
+   * Campo vazio não é zero: `Number('')` é 0, e 0 significa remover. Apagar o campo para
+   * redigitar voltaria a quantidade para a atual, nunca apagaria o item.
+   */
+  function aplicarTexto() {
+    if (texto.trim() === '') {
+      setTexto(String(item.quantidade));
+      return;
+    }
+    aplicar(Number(texto));
+  }
+
   return (
     <li
       ref={ref}
@@ -94,7 +102,6 @@ export function LinhaItem({
           src={item.produto.imagemUrl}
           nome={nome}
           tipo={item.produto.tipo}
-          duracaoMin={duracaoMin}
           sizes="112px"
           miniatura
         />
@@ -117,14 +124,6 @@ export function LinhaItem({
               <p className="text-apoio text-agenda mt-0.5 flex items-center gap-1.5">
                 <CalendarDays className="size-3.5 shrink-0" aria-hidden />
                 <span>{formatarAgendamentoCurto(item.agendadoPara)}</span>
-                {duracaoMin ? (
-                  <FaixaAgenda
-                    duracaoMin={duracaoMin}
-                    horarioEscolhido={item.agendadoPara}
-                    variante="mini"
-                    className="ml-1 hidden sm:flex"
-                  />
-                ) : null}
               </p>
             )}
             {indisponivel && (
@@ -183,11 +182,11 @@ export function LinhaItem({
                   pattern="[0-9]*"
                   value={texto}
                   onChange={(e) => setTexto(e.target.value.replace(/\D/g, '').slice(0, 2))}
-                  onBlur={() => aplicar(Number(texto))}
+                  onBlur={aplicarTexto}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
-                      aplicar(Number(texto));
+                      aplicarTexto();
                     }
                   }}
                   disabled={ocupado || indisponivel}

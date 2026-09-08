@@ -29,14 +29,19 @@ export default async function CategoriaPage({
   searchParams,
 }: PageProps<'/categoria/[slug]'>) {
   const [{ slug }, sp] = await Promise.all([params, searchParams]);
-  const arvore = await arvoreCategoriasServidor();
-  const categoria = arvore ? encontrarPorSlug(arvore, slug) : undefined;
-  if (arvore && !categoria) notFound();
-
   const filtros = lerFiltrosCatalogo(sp);
   const qc = getQueryClientServidor();
+
+  // A lista depende só do slug e dos filtros, nunca da árvore: as duas chamadas vão juntas.
+  // Em série o TTFB era a soma das duas latências.
+  const [arvore] = await Promise.all([
+    arvoreCategoriasServidor(),
+    qc.prefetchQuery(opcoesListaProdutos(filtrosParaApi(filtros, slug))),
+  ]);
+
+  const categoria = arvore ? encontrarPorSlug(arvore, slug) : undefined;
+  if (arvore && !categoria) notFound();
   if (arvore) qc.setQueryData(qk.categorias.arvore(false), arvore);
-  await qc.prefetchQuery(opcoesListaProdutos(filtrosParaApi(filtros, slug)));
 
   const trilha = arvore && categoria ? trilhaDaCategoria(arvore, categoria.caminho) : [];
   const filhos = categoria?.filhos ?? [];

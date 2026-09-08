@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { COOKIE_MARCADOR } from '@/lib/auth/cookies';
 
 /**
  * Proteção de rota em duas camadas. Esta é a primeira: sem o marcador de sessão, rotas
@@ -9,8 +10,6 @@ import { NextResponse, type NextRequest } from 'next/server';
  * requisição sem token válido (ou com papel errado) é recusada lá, independentemente do
  * que o front esconde ou mostra.
  */
-const COOKIE_MARCADOR = 'balcao_logado';
-
 export function proxy(request: NextRequest): NextResponse {
   if (request.cookies.has(COOKIE_MARCADOR)) return NextResponse.next();
 

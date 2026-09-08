@@ -1,7 +1,9 @@
 import {
   erroBff,
+  erroOrigem,
   lerRefreshToken,
   limparSessao,
+  mesmaOrigem,
   renovarNoBack,
   responderComSessao,
 } from '@/lib/auth/bff';
@@ -11,7 +13,9 @@ import type { RespostaAuthBack } from '@/lib/tipos';
  * Troca o cookie httpOnly por um novo par de tokens (rotação). Se o back recusar, o cookie é
  * apagado: o cliente vira anônimo em vez de ficar num laço de tentativas.
  */
-export async function POST(): Promise<Response> {
+export async function POST(req: Request): Promise<Response> {
+  if (!mesmaOrigem(req)) return erroOrigem();
+
   const refreshToken = await lerRefreshToken();
   if (!refreshToken) return erroBff(401, 'SEM_SESSAO', 'Nenhuma sessão ativa');
 

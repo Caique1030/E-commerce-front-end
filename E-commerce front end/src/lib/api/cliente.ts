@@ -34,6 +34,13 @@ export interface OpcoesApi extends Omit<RequestInit, 'body'> {
   query?: Record<string, ValorQuery>;
   /** Envia o Bearer token quando houver (padrão: true). */
   auth?: boolean;
+  /**
+   * Segundos de cache de dados do Next. Vale só no servidor e só para conteúdo público:
+   * no navegador quem controla a frescura é o TanStack Query, e requisição autenticada
+   * nunca passa por aqui (o servidor não manda Bearer). Sem isto, todo render de página
+   * pública refaz a chamada à API.
+   */
+  revalidar?: number;
   /** Interno: evita laço de renovação. */
   _tentouRenovar?: boolean;
 }
@@ -63,7 +70,7 @@ export function montarQuery(query?: Record<string, ValorQuery>): string {
 }
 
 export async function api<T>(caminho: string, opcoes: OpcoesApi = {}): Promise<T> {
-  const { body, query, auth = true, _tentouRenovar, headers, ...init } = opcoes;
+  const { body, query, auth = true, revalidar, _tentouRenovar, headers, ...init } = opcoes;
 
   const cabecalhos = new Headers(headers);
   if (body !== undefined && !cabecalhos.has('Content-Type')) {
@@ -77,13 +84,20 @@ export async function api<T>(caminho: string, opcoes: OpcoesApi = {}): Promise<T
     if (tokenUsado) cabecalhos.set('Authorization', `Bearer ${tokenUsado}`);
   }
 
+  // Só o servidor pode participar do cache de dados do Next; no navegador tudo é no-store e a
+  // frescura fica com o TanStack Query.
+  const politicaCache: RequestInit =
+    ehServidor && revalidar !== undefined
+      ? { next: { revalidate: revalidar } }
+      : { cache: 'no-store' };
+
   let res: Response;
   try {
     res = await fetch(`${urlBaseApi()}${caminho}${montarQuery(query)}`, {
       ...init,
+      ...politicaCache,
       headers: cabecalhos,
       body: body !== undefined ? JSON.stringify(body) : undefined,
-      cache: 'no-store',
     });
   } catch {
     throw new ApiError(0, 'REDE', 'Não foi possível conectar ao servidor. Verifique sua conexão.');

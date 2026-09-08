@@ -4,11 +4,14 @@ import type { AtualizarProduto, CriarProduto } from '@/lib/schemas/produto';
 import type { FiltrosProduto, Paginado, Produto, Slot } from '@/lib/tipos';
 import { api } from './cliente';
 
+/** Catálogo é público e muda devagar: no servidor entra no cache de dados do Next. */
+const REVALIDAR_CATALOGO = 60;
+
 export const produtosApi = {
   listar: (filtros: FiltrosProduto) =>
-    api<Paginado<Produto>>('/produtos', { query: { ...filtros } }),
+    api<Paginado<Produto>>('/produtos', { query: { ...filtros }, revalidar: REVALIDAR_CATALOGO }),
 
-  buscar: (id: string) => api<Produto>(`/produtos/${id}`),
+  buscar: (id: string) => api<Produto>(`/produtos/${id}`, { revalidar: REVALIDAR_CATALOGO }),
 
   disponibilidade: (id: string, data: string) =>
     api<Slot[]>(`/produtos/${id}/disponibilidade`, { query: { data } }),

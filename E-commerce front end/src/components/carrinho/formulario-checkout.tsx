@@ -17,6 +17,7 @@ import { useFinalizarCompra } from '@/lib/hooks/use-pedidos';
 import { useAtualizarPerfil } from '@/lib/hooks/use-usuarios';
 import { qk } from '@/lib/query-keys';
 import { checkoutSchema, type DadosCheckout } from '@/lib/schemas/checkout';
+import { updateMeSchema } from '@/lib/schemas/usuario';
 import type { Carrinho, ProblemaItem } from '@/lib/tipos';
 import { gerarChaveIdempotencia } from '@/lib/utils';
 import { useSessao } from '@/providers/sessao-provider';
@@ -59,7 +60,9 @@ export function FormularioCheckout({ carrinho }: { carrinho: Carrinho }) {
     setErroGeral(null);
     try {
       const nome = dados.nome.trim();
-      if (usuario && nome !== usuario.nome) await atualizarPerfil.mutateAsync({ nome });
+      if (usuario && nome !== usuario.nome) {
+        await atualizarPerfil.mutateAsync(updateMeSchema.parse({ nome }));
+      }
       const pedido = await finalizar.mutateAsync(chave);
       router.push(`/pedido/${pedido.id}`);
     } catch (erro) {

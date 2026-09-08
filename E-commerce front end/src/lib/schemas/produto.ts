@@ -119,6 +119,12 @@ export const formularioProdutoSchema = z
     ativo: z.boolean(),
   })
   .superRefine((v, ctx) => {
+    // Só a direção "BOOKING exige os campos". A recíproca ("só permitido para BOOKING") não vale
+    // aqui: os campos de agenda somem da tela quando o tipo muda, mas o react-hook-form guarda o
+    // valor digitado antes da troca, e o erro ficaria preso num campo que não está mais montado —
+    // o admin clicaria em Salvar sem retorno nenhum. `formularioParaPayload` já zera os dois, e
+    // `createProductSchema`/`updateProductSchema` continuam cobrando as duas direções no payload.
+    if (v.tipo !== 'BOOKING') return;
     for (const erro of errosCamposBooking(v)) {
       ctx.addIssue({ code: 'custom', path: [erro.campo], message: erro.mensagem });
     }

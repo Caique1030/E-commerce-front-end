@@ -1,8 +1,17 @@
-import { chamarBack, erroBff, repassarErro, responderComSessao } from '@/lib/auth/bff';
+import {
+  chamarBack,
+  erroBff,
+  erroOrigem,
+  mesmaOrigem,
+  repassarErro,
+  responderComSessao,
+} from '@/lib/auth/bff';
 import { registerSchema } from '@/lib/schemas/auth';
 import type { RespostaAuthBack } from '@/lib/tipos';
 
 export async function POST(req: Request): Promise<Response> {
+  if (!mesmaOrigem(req)) return erroOrigem();
+
   const corpo: unknown = await req.json().catch(() => null);
   const dados = registerSchema.safeParse(corpo);
   if (!dados.success) return erroBff(400, 'VALIDACAO', 'Dados de cadastro inválidos');

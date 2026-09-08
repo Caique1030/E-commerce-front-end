@@ -1,6 +1,6 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
 import { SemPermissao } from '@/components/estados/sem-permissao';
 import { useSessao } from '@/providers/sessao-provider';
@@ -29,14 +29,14 @@ export function GuardaSessao({ exige = 'autenticado', esqueleto, children }: Gua
   const { status, usuario, ehCliente, ehEquipe, ehAdmin } = useSessao();
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (status !== 'anonimo') return;
-    const query = searchParams.toString();
-    const voltar = `${pathname}${query ? `?${query}` : ''}`;
+    // A query sai de window.location em vez de useSearchParams: o hook força a página inteira
+    // para render no cliente (bailout), e este guarda embrulha quase toda rota privada.
+    const voltar = `${pathname}${window.location.search}`;
     router.replace(`/entrar?voltar=${encodeURIComponent(voltar)}`);
-  }, [status, pathname, searchParams, router]);
+  }, [status, pathname, router]);
 
   if (status !== 'autenticado' || !usuario) return <>{esqueleto}</>;
 

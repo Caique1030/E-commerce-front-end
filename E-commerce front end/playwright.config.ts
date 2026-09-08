@@ -21,7 +21,8 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3001',
-    reuseExistingServer: true,
+    // Em CI um servidor sobrevivente de outro job serviria build antigo: sempre suba um novo.
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
 });

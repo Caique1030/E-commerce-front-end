@@ -1,6 +1,8 @@
 import 'server-only';
 import { cookies } from 'next/headers';
+import '@/lib/schemas/locale'; // mensagens do Zod em português também no servidor
 import type { RespostaAuthBack, SessaoPublica } from '@/lib/tipos';
+import { COOKIE_MARCADOR, COOKIE_SESSAO } from './cookies';
 
 /**
  * BFF de autenticação. O back devolve accessToken + refreshToken; guardar os dois no
@@ -10,8 +12,7 @@ import type { RespostaAuthBack, SessaoPublica } from '@/lib/tipos';
  * Trade-off: uma camada a mais de indireção em troca de nunca expor o refresh token ao JS.
  */
 
-export const COOKIE_SESSAO = 'balcao_sessao';
-export const COOKIE_MARCADOR = 'balcao_logado';
+export { COOKIE_MARCADOR, COOKIE_SESSAO };
 const SETE_DIAS = 60 * 60 * 24 * 7;
 
 const seguro = process.env.NODE_ENV === 'production';
@@ -95,6 +96,27 @@ export async function repassarErro(res: Response): Promise<Response> {
 
 export function erroBff(status: number, error: string, message: string): Response {
   return Response.json({ statusCode: status, error, message }, { status });
+}
+
+/**
+ * Route handlers não têm a proteção de origem que o Next aplica a Server Actions, e
+ * `Request.json()` aceita o corpo independentemente do Content-Type. Sem esta checagem, um
+ * formulário em outro site pode postar em /api/auth/entrar e logar a vítima na conta do
+ * atacante (o Set-Cookie da resposta é gravado numa navegação top-level, mesmo com SameSite=Lax).
+ */
+export function mesmaOrigem(req: Request): boolean {
+  // Estas rotas só são chamadas pelo próprio front (fetch com credentials: 'same-origin'),
+  // então o valor legítimo é sempre 'same-origin'. Um POST de formulário externo traz
+  // 'cross-site'. O Origin é a reserva para clientes sem Sec-Fetch-Site.
+  const site = req.headers.get('sec-fetch-site');
+  if (site) return site === 'same-origin';
+  const origin = req.headers.get('origin');
+  if (origin) return origin === new URL(req.url).origin;
+  return false;
+}
+
+export function erroOrigem(): Response {
+  return erroBff(403, 'ORIGEM_INVALIDA', 'Requisição bloqueada por origem inválida');
 }
 
 /**

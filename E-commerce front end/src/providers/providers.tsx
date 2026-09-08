@@ -1,21 +1,15 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import '@/lib/schemas'; // configura as mensagens do Zod em português
+import '@/lib/schemas/locale'; // configura as mensagens do Zod em português
 import { Toaster } from '@/components/ui/toaster';
 import { QueryProvider } from './query-provider';
 import { SessaoProvider } from './sessao-provider';
 
-export function Providers({
-  children,
-  temSessaoInicial,
-}: {
-  children: ReactNode;
-  temSessaoInicial: boolean;
-}) {
+export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryProvider>
-      <SessaoProvider temSessaoInicial={temSessaoInicial}>
+      <SessaoProvider>
         {children}
         <Toaster />
       </SessaoProvider>

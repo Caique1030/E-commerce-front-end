@@ -108,8 +108,20 @@ function NoCategoria({ categoria, irmaos, indice, abrirModal }: NoProps) {
     if (destino < 0 || destino >= irmaos.length) return;
     const nova = [...irmaos];
     [nova[indice], nova[destino]] = [nova[destino], nova[indice]];
-    for (let i = 0; i < nova.length; i++) {
-      if (nova[i].ordem !== i) await atualizar.mutateAsync({ id: nova[i].id, dados: { ordem: i } });
+    try {
+      for (let i = 0; i < nova.length; i++) {
+        if (nova[i].ordem !== i) {
+          await atualizar.mutateAsync({ id: nova[i].id, dados: { ordem: i } });
+        }
+      }
+    } catch (erro) {
+      // A gravação é uma por irmão: falhar no meio deixa a ordem parcial. Avisa e deixa a
+      // invalidação do sucesso anterior (ou o próximo refetch) mostrar o estado real do servidor.
+      notificar({
+        tipo: 'erro',
+        titulo: 'A ordem não foi alterada por completo.',
+        descricao: mensagemDeErro(erro),
+      });
     }
   }
 
@@ -121,6 +133,12 @@ function NoCategoria({ categoria, irmaos, indice, abrirModal }: NoProps) {
           notificar({
             tipo: 'sucesso',
             titulo: categoria.ativo ? 'Categoria desativada.' : 'Categoria ativada.',
+          }),
+        onError: (erro) =>
+          notificar({
+            tipo: 'erro',
+            titulo: 'A categoria não foi alterada.',
+            descricao: mensagemDeErro(erro),
           }),
       },
     );

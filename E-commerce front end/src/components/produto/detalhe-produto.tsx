@@ -1,12 +1,14 @@
 'use client';
 
 import { CalendarDays, ChevronRight, Minus, Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Erro } from '@/components/estados/erro';
 import { EsqueletoDetalheProduto } from '@/components/estados/skeletons';
 import { Badge } from '@/components/ui/badge';
 import { Botao } from '@/components/ui/botao';
+import { Esqueleto } from '@/components/ui/esqueleto';
 import { ImagemProduto } from '@/components/ui/imagem-produto';
 import { Preco } from '@/components/ui/preco';
 import { trilhaDaCategoria } from '@/lib/api/categorias';
@@ -17,7 +19,16 @@ import { useArvoreCategorias } from '@/lib/hooks/use-categorias';
 import { useProduto } from '@/lib/hooks/use-produtos';
 import type { Produto } from '@/lib/tipos';
 import { cn } from '@/lib/utils';
-import { SeletorAgendamento } from './seletor-agendamento';
+
+/**
+ * Só produtos BOOKING mostram a agenda, mas o import estático fazia toda página de produto
+ * baixar o calendário e o date-fns (parse/format + locale pt-BR) junto. Carregado sob demanda,
+ * quem vende produto físico não paga por isso.
+ */
+const SeletorAgendamento = dynamic(
+  () => import('./seletor-agendamento').then((m) => m.SeletorAgendamento),
+  { ssr: false, loading: () => <Esqueleto className="h-64 w-full" /> },
+);
 
 /** Ilha interativa da página do produto. Os dados já chegam hidratados do servidor. */
 export function DetalheProduto({ id }: { id: string }) {

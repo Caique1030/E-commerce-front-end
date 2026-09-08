@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { AdicionarItem } from '@/lib/api/carrinho';
+import { destinoSeguro } from '@/lib/utils';
 import { useSessao } from '@/providers/sessao-provider';
 import { notificar } from '@/stores/ui-store';
 import { useAdicionarAoCarrinho } from './use-carrinho';
@@ -110,6 +111,7 @@ export function useRetomarIntencao() {
 
     const { voltar, ...dados } = intencao;
     adicionar.mutate(dados);
-    if (voltar) router.replace(voltar);
+    // Veio do sessionStorage: passa pela mesma guarda de destino do ?voltar= da URL.
+    if (voltar) router.replace(destinoSeguro(voltar));
   }, [status, ehCliente, ehEquipe, adicionar, router]);
 }
