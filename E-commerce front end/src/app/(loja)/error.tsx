@@ -20,7 +20,7 @@ export default function ErroLoja({
           <Link href="/">Ver produtos</Link>
         </Botao>
       }
-      className="mx-auto max-w-lg"
+      className="painel mx-auto max-w-lg px-6 py-10"
     />
   );
 }

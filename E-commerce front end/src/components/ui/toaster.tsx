@@ -6,7 +6,7 @@ import { useUiStore, type Toast } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
 
 const icones = {
-  sucesso: <CheckCircle2 className="text-verde-nota size-5" aria-hidden />,
+  sucesso: <CheckCircle2 className="text-verde size-5" aria-hidden />,
   erro: <AlertCircle className="text-alerta size-5" aria-hidden />,
   info: <Info className="text-agenda size-5" aria-hidden />,
 };

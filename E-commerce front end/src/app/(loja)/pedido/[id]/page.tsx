@@ -72,7 +72,7 @@ function Confirmacao() {
     <article className="mx-auto flex max-w-2xl flex-col gap-6">
       <header className="flex flex-col items-center gap-3 text-center">
         <span
-          className="bg-verde-suave text-verde-nota flex size-14 items-center justify-center rounded-full"
+          className="bg-verde-suave text-verde flex size-14 items-center justify-center rounded-full"
           aria-hidden
         >
           <CheckCircle2 className="size-8" strokeWidth={1.75} />
@@ -104,7 +104,7 @@ function Confirmacao() {
 
       <section
         aria-labelledby="titulo-itens"
-        className="rounded-card border-borda bg-branco border px-5 py-2"
+        className="rounded-card border-borda bg-branco shadow-card border px-5 py-2"
       >
         <h2 id="titulo-itens" className="sr-only">
           Itens

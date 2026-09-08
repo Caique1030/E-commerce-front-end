@@ -70,7 +70,7 @@ export default function AdminPedidoPage() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <section
           aria-label="Itens"
-          className="rounded-card border-borda bg-branco border px-5 py-2"
+          className="rounded-card border-borda bg-branco shadow-card border px-5 py-2"
         >
           <ItensPedido pedido={p} />
           <TotaisPedido pedido={p} className="py-4" />
@@ -79,7 +79,7 @@ export default function AdminPedidoPage() {
         <div className="flex flex-col gap-5">
           <section
             aria-labelledby="titulo-status"
-            className="rounded-card border-borda bg-branco border p-5"
+            className="rounded-card border-borda bg-branco shadow-card border p-5"
           >
             <h2 id="titulo-status" className="text-h2 mb-3">
               Mudar status
@@ -88,7 +88,7 @@ export default function AdminPedidoPage() {
           </section>
           <section
             aria-labelledby="titulo-historico"
-            className="rounded-card border-borda bg-branco border p-5"
+            className="rounded-card border-borda bg-branco shadow-card border p-5"
           >
             <h2 id="titulo-historico" className="text-h2 mb-4">
               Histórico

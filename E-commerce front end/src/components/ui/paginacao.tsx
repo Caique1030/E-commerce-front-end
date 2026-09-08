@@ -54,7 +54,7 @@ export function Paginacao({ pagina, totalPaginas, aoMudar, className }: Paginaca
             className={cn(
               botao,
               p === pagina
-                ? 'border-tinta bg-tinta text-branco'
+                ? 'border-acao bg-acao text-branco'
                 : 'border-borda-forte bg-branco hover:bg-papel-2',
             )}
           >

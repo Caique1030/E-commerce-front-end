@@ -1,9 +1,10 @@
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, Truck } from 'lucide-react';
 import Link from 'next/link';
 import { Botao } from '@/components/ui/botao';
 import { ImagemProduto } from '@/components/ui/imagem-produto';
 import { Preco } from '@/components/ui/preco';
-import { formatarDuracao } from '@/lib/formatadores';
+import { parcelamento, temFreteGratis } from '@/lib/comercial';
+import { centavosParaBRL, formatarDuracao } from '@/lib/formatadores';
 import type { Produto } from '@/lib/tipos';
 import { cn } from '@/lib/utils';
 
@@ -24,8 +25,9 @@ function textoEstoque(estoque: number): { texto: string; tom: 'normal' | 'alerta
 }
 
 /**
- * Card de produto. Muda conforme o tipo: um você compra (verde), o outro você agenda (violeta),
- * com faixa superior, rótulo e ícone — cor nunca sozinha. Sem sombra; hover só muda a borda.
+ * Card de produto. Muda conforme o tipo: um você compra (azul), o outro você agenda (violeta),
+ * com faixa superior, rótulo e ícone — cor nunca sozinha. O card branco só se separa do fundo
+ * cinza pela sombra, que cresce no hover.
  */
 export function CardProduto({
   produto,
@@ -39,12 +41,14 @@ export function CardProduto({
   const href = `/produto/${produto.id}`;
   const estoque = textoEstoque(produto.estoque);
   const esgotado = !booking && produto.estoque <= 0;
+  const parcelas = parcelamento(produto.precoCentavos);
+  const freteGratis = !booking && temFreteGratis(produto.precoCentavos);
 
   return (
     <article
       className={cn(
-        'group rounded-card border-borda bg-branco hover:border-tinta-3 flex flex-col overflow-hidden border transition-colors',
-        booking && 'border-t-agenda hover:border-t-agenda border-t-[3px]',
+        'group rounded-card bg-branco shadow-card hover:shadow-card-alto flex flex-col overflow-hidden transition-shadow',
+        booking && 'border-t-agenda border-t-[3px]',
         className,
       )}
       onMouseEnter={() => aoPrefetch?.(produto.id)}
@@ -60,44 +64,58 @@ export function CardProduto({
           capacidadeSlot={produto.capacidadeSlot}
           sizes="(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw"
           prioridade={prioridade}
-          className={cn('border-borda border-b', !booking && 'bg-branco')}
+          className={cn('aspect-square', !booking && 'bg-branco')}
         />
       </Link>
 
-      <div className="flex flex-1 flex-col gap-1 p-4">
+      <div className="flex flex-1 flex-col gap-1 p-3">
         {booking ? (
-          <p className="text-apoio text-agenda flex items-center gap-1.5 font-medium">
+          <p className="text-micro text-agenda flex items-center gap-1 font-bold tracking-wide uppercase">
             <CalendarDays className="size-3.5" aria-hidden />
             Serviço agendado
           </p>
         ) : (
-          <p className="text-apoio text-suave truncate">
+          <p className="text-micro text-suave truncate tracking-wide uppercase">
             {produto.marca ?? produto.categoria.nome}
           </p>
         )}
 
-        <h3 id={`produto-${produto.id}`} className="text-corpo leading-5 font-medium">
+        <h3 id={`produto-${produto.id}`} className="text-corpo text-tinta-2 leading-[1.15rem]">
           <Link href={href} className="line-clamp-2 hover:underline">
             {produto.nome}
           </Link>
         </h3>
 
-        {booking && produto.duracaoMin ? (
-          <p className="text-apoio text-suave">
-            {formatarDuracao(produto.duracaoMin)}
-            {produto.capacidadeSlot ? ` · até ${produto.capacidadeSlot} por horário` : ''}
-          </p>
-        ) : null}
-
-        <div className="mt-auto flex flex-col gap-1 pt-2">
+        <div className="mt-2 flex flex-col gap-0.5">
           <Preco centavos={produto.precoCentavos} variante="card" />
+          {parcelas && (
+            <p className="text-apoio text-tinta-3">
+              em{' '}
+              <span className="preco text-verde font-semibold">
+                {parcelas.vezes}x {centavosParaBRL(parcelas.valorCentavos)}
+              </span>{' '}
+              sem juros
+            </p>
+          )}
+          {freteGratis && (
+            <p className="text-apoio text-verde flex items-center gap-1 font-bold">
+              <Truck className="size-3.5" aria-hidden />
+              Frete grátis
+            </p>
+          )}
+          {booking && produto.duracaoMin ? (
+            <p className="text-apoio text-suave">
+              {formatarDuracao(produto.duracaoMin)}
+              {produto.capacidadeSlot ? ` · até ${produto.capacidadeSlot} por horário` : ''}
+            </p>
+          ) : null}
           {!booking && (
             <p
               className={cn(
                 'text-apoio',
                 estoque.tom === 'normal' && 'text-suave',
-                estoque.tom === 'alerta' && 'text-aviso',
-                estoque.tom === 'esgotado' && 'text-alerta',
+                estoque.tom === 'alerta' && 'text-aviso font-semibold',
+                estoque.tom === 'esgotado' && 'text-alerta font-semibold',
               )}
             >
               {estoque.texto}
@@ -105,7 +123,7 @@ export function CardProduto({
           )}
         </div>
 
-        <div className="pt-3">
+        <div className="mt-auto pt-3">
           {booking ? (
             <Botao asChild variante="agenda" className="w-full">
               <Link href={href} aria-label={`Escolher data para ${produto.nome}`}>

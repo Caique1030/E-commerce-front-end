@@ -40,7 +40,7 @@ export function ResumoValores({
         <div className="text-suave flex justify-between">
           <dt>Desconto</dt>
           <dd>
-            <Preco centavos={-descontoCentavos} variante="linha" className="text-verde-nota" />
+            <Preco centavos={-descontoCentavos} variante="linha" className="text-verde" />
           </dd>
         </div>
       )}

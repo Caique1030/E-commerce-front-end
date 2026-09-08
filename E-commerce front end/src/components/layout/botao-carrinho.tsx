@@ -21,16 +21,15 @@ export function BotaoCarrinho({ className }: { className?: string }) {
       type="button"
       onClick={() => abrir()}
       className={cn(
-        'rounded-campo text-corpo hover:bg-papel-2 relative flex h-10 items-center gap-2 px-2.5',
+        'rounded-campo hover:bg-tinta/10 relative flex size-10 items-center justify-center',
         className,
       )}
       aria-label={`Abrir carrinho, ${pluralizar(total, 'item', 'itens')}`}
     >
-      <ShoppingCart className="size-5" aria-hidden strokeWidth={1.75} />
-      <span className="hidden sm:inline">Carrinho</span>
+      <ShoppingCart className="size-6" aria-hidden strokeWidth={1.75} />
       {total > 0 && (
         <span
-          className="preco bg-verde-nota text-micro text-branco absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 font-semibold sm:static sm:h-auto sm:min-w-0 sm:rounded-full sm:px-1.5 sm:py-0.5"
+          className="preco bg-acao text-micro text-branco ring-amarelo absolute top-0.5 right-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 font-bold ring-2"
           aria-hidden
         >
           {total > 99 ? '99+' : total}

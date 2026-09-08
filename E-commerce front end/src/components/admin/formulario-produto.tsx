@@ -161,7 +161,7 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
       noValidate
       className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]"
     >
-      <div className="rounded-card border-borda bg-branco flex flex-col gap-5 border p-5">
+      <div className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-5 border p-5">
         <fieldset className="flex flex-col gap-4">
           <legend className="text-h2 mb-1">Tipo</legend>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -181,13 +181,13 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
             ).map((o) => (
               <label
                 key={o.valor}
-                className={`rounded-card flex cursor-pointer items-start gap-3 border p-3 ${tipo === o.valor ? (o.valor === 'BOOKING' ? 'border-agenda bg-agenda-suave/50' : 'border-verde-nota bg-verde-suave/50') : 'border-borda hover:border-borda-forte'}`}
+                className={`rounded-card flex cursor-pointer items-start gap-3 border p-3 ${tipo === o.valor ? (o.valor === 'BOOKING' ? 'border-agenda bg-agenda-suave/50' : 'border-acao bg-acao-suave/50') : 'border-borda hover:border-borda-forte'}`}
               >
                 <input
                   type="radio"
                   value={o.valor}
                   {...form.register('tipo')}
-                  className="accent-verde-nota mt-1"
+                  className="accent-acao mt-1"
                   disabled={enviando}
                 />
                 <span>
@@ -354,7 +354,7 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
       </div>
 
       <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="rounded-card border-borda bg-branco overflow-hidden border">
+        <div className="rounded-card border-borda bg-branco shadow-card overflow-hidden border">
           <ImagemProduto
             src={
               typeof imagemUrl === 'string' && imagemUrl.startsWith('https://cdn.dummyjson.com/')
@@ -374,7 +374,7 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
           </p>
         </div>
 
-        <div className="rounded-card border-borda bg-branco flex flex-col gap-2 border p-4">
+        <div className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-2 border p-4">
           <Botao type="submit" tamanho="lg" carregando={enviando}>
             {editando ? 'Salvar alterações' : 'Cadastrar produto'}
           </Botao>

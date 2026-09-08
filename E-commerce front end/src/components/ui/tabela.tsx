@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 /** Tabela densa para o admin. O contêiner rola horizontalmente; a página nunca. */
 export function Tabela({ className, children, ...props }: HTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="rounded-card border-borda bg-branco overflow-x-auto border">
+    <div className="rounded-card border-borda bg-branco shadow-card overflow-x-auto border">
       <table
         className={cn('text-corpo w-full min-w-[640px] border-collapse', className)}
         {...props}

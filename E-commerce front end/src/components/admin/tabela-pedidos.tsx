@@ -41,7 +41,7 @@ export function TabelaPedidos() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-card border-borda bg-branco flex flex-wrap items-end gap-3 border px-4 py-3">
+      <div className="rounded-card border-borda bg-branco shadow-card flex flex-wrap items-end gap-3 border px-4 py-3">
         <label className="text-apoio flex flex-col gap-1">
           <span className="font-medium">Status</span>
           <Selecao
@@ -134,7 +134,7 @@ export function TabelaPedidos() {
                       <button
                         type="button"
                         onClick={() => setEditando(p)}
-                        className="text-apoio text-verde-nota font-medium hover:underline"
+                        className="text-apoio text-acao font-medium hover:underline"
                       >
                         Mudar status
                       </button>

@@ -19,7 +19,7 @@ export default function EditarProdutoPage() {
   if (produto.isPending) {
     return (
       <PaginaAdmin titulo="Editar produto">
-        <div className="rounded-card border-borda bg-branco border p-5">
+        <div className="rounded-card border-borda bg-branco shadow-card border p-5">
           <EsqueletoFormulario />
         </div>
       </PaginaAdmin>

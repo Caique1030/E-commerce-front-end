@@ -107,7 +107,7 @@ export function SeletorAgendamento({
               compacto
             />
           ) : slots && slots.length === 0 ? (
-            <p className="rounded-card border-borda bg-branco text-corpo text-suave border p-4">
+            <p className="rounded-card border-borda bg-branco shadow-card text-corpo text-suave border p-4">
               Sem horários livres neste dia. Escolha outro dia.
             </p>
           ) : grupos ? (

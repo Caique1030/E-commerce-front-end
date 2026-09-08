@@ -5,6 +5,7 @@ import { Botao } from '@/components/ui/botao';
 export default function NaoEncontrado() {
   return (
     <Vazio
+      className="painel"
       ilustracao="busca"
       titulo="Não encontramos esta página."
       descricao="Confira o endereço ou volte para o catálogo."

@@ -9,13 +9,13 @@ import { ArvoreCategorias } from './arvore-categorias';
  */
 export function LayoutCatalogo({ children }: { children: ReactNode }) {
   return (
-    <div className="grid gap-8 lg:grid-cols-[13.5rem_minmax(0,1fr)] lg:gap-10">
+    <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)]">
       <aside className="hidden lg:block" aria-label="Navegação do catálogo">
-        <div className="sticky top-20 flex max-h-[calc(100dvh-6rem)] flex-col gap-7 overflow-y-auto pr-2 pb-4">
+        <div className="painel sticky top-[6.5rem] flex max-h-[calc(100dvh-8rem)] flex-col gap-6 overflow-y-auto px-3 py-4">
           <Suspense fallback={<EsqueletoArvore />}>
             <ArvoreCategorias />
           </Suspense>
-          <div className="border-borda border-t pt-6">
+          <div className="border-borda border-t pt-5">
             <Suspense fallback={null}>
               <FiltrosLaterais />
             </Suspense>

@@ -53,7 +53,7 @@ export default async function CategoriaPage({
           <nav aria-label="Você está em" className="text-apoio text-suave">
             <ol className="flex flex-wrap items-center gap-1">
               <li>
-                <Link href="/" className="hover:text-tinta hover:underline">
+                <Link href="/" className="hover:text-acao hover:underline">
                   Tudo na loja
                 </Link>
               </li>
@@ -65,10 +65,7 @@ export default async function CategoriaPage({
                       {c.nome}
                     </span>
                   ) : (
-                    <Link
-                      href={`/categoria/${c.slug}`}
-                      className="hover:text-tinta hover:underline"
-                    >
+                    <Link href={`/categoria/${c.slug}`} className="hover:text-acao hover:underline">
                       {c.nome}
                     </Link>
                   )}
@@ -83,7 +80,7 @@ export default async function CategoriaPage({
                 <li key={f.id}>
                   <Link
                     href={`/categoria/${f.slug}`}
-                    className="border-borda-forte bg-branco text-apoio hover:border-tinta inline-flex h-8 items-center rounded-full border px-3"
+                    className="bg-branco text-apoio text-tinta-2 shadow-card hover:text-acao inline-flex h-8 items-center rounded-full px-3.5 font-medium"
                   >
                     {f.nome}
                   </Link>

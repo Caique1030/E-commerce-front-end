@@ -13,8 +13,10 @@ export default function ErroGlobal({
 }) {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="px-6 py-5">
-        <Logo />
+      <header className="bg-amarelo shadow-barra">
+        <div className="conteudo flex h-14 items-center">
+          <Logo />
+        </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-4">
         <Erro
@@ -26,7 +28,7 @@ export default function ErroGlobal({
               <Link href="/">Ir para a loja</Link>
             </Botao>
           }
-          className="w-full max-w-lg"
+          className="painel w-full max-w-lg px-6 py-10"
         />
       </main>
     </div>

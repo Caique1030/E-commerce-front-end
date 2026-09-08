@@ -57,7 +57,7 @@ export function Select<V extends string>({
                 className="rounded-campo text-corpo data-[highlighted]:bg-papel-2 relative flex cursor-pointer items-center py-2 pr-3 pl-8 outline-none select-none data-[state=checked]:font-medium"
               >
                 <SelectPrimitive.ItemIndicator className="absolute left-2.5 inline-flex">
-                  <Check className="text-verde-nota size-4" aria-hidden />
+                  <Check className="text-acao size-4" aria-hidden />
                 </SelectPrimitive.ItemIndicator>
                 <SelectPrimitive.ItemText>{o.rotulo}</SelectPrimitive.ItemText>
               </SelectPrimitive.Item>

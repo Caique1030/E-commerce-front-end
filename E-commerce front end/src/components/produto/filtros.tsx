@@ -56,7 +56,7 @@ export function Filtros({
   }
 
   const campo =
-    'preco h-9 w-full rounded-campo border border-borda-forte bg-branco px-2.5 text-apoio hover:border-tinta-3 focus:border-tinta focus:outline-none';
+    'preco h-9 w-full rounded-campo border border-borda-forte bg-branco px-2.5 text-apoio hover:border-tinta-3 focus:border-acao focus:outline-none';
 
   return (
     <div className={cn('flex flex-col gap-5', className)}>
@@ -72,7 +72,7 @@ export function Filtros({
                 key={o.valor}
                 className={cn(
                   'rounded-campo text-corpo hover:bg-papel-2 flex min-h-9 cursor-pointer items-center gap-2.5 px-2',
-                  ativo && 'bg-verde-suave text-verde-nota font-medium',
+                  ativo && 'bg-acao-suave text-acao font-medium',
                 )}
               >
                 <input
@@ -84,7 +84,7 @@ export function Filtros({
                     aoAtualizar({ tipo: (o.valor || undefined) as TipoProduto | undefined });
                     aoAplicar?.();
                   }}
-                  className="accent-verde-nota"
+                  className="accent-acao"
                 />
                 {o.rotulo}
               </label>

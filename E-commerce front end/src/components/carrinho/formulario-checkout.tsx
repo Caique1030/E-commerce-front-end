@@ -181,7 +181,7 @@ export function FormularioCheckout({ carrinho }: { carrinho: Carrinho }) {
         )}
 
         <ul
-          className="divide-borda rounded-card border-borda bg-branco divide-y border px-5"
+          className="divide-borda rounded-card border-borda bg-branco shadow-card divide-y border px-5"
           aria-label="Itens da compra"
         >
           {carrinho.itens.map((item) => (
@@ -204,7 +204,7 @@ export function FormularioCheckout({ carrinho }: { carrinho: Carrinho }) {
       </section>
 
       <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-card border-borda bg-branco flex flex-col gap-5 border p-5">
+        <div className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-5 border p-5">
           <fieldset className="flex flex-col gap-4">
             <legend className="text-h2">Dados do comprador</legend>
             <Campo rotulo="Nome completo" erro={form.formState.errors.nome?.message} obrigatorio>

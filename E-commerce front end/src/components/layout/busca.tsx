@@ -62,14 +62,17 @@ export function Busca({ className }: { className?: string }) {
   }
 
   return (
-    <form role="search" onSubmit={aoEnviar} className={cn('relative', className)}>
+    <form
+      role="search"
+      onSubmit={aoEnviar}
+      className={cn(
+        'rounded-campo bg-branco shadow-card focus-within:ring-acao/40 flex h-10 items-center focus-within:ring-2',
+        className,
+      )}
+    >
       <label htmlFor="busca-loja" className="sr-only">
         Buscar produtos e serviços
       </label>
-      <Search
-        className="text-suave pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-        aria-hidden
-      />
       <input
         ref={inputRef}
         id="busca-loja"
@@ -77,19 +80,26 @@ export function Busca({ className }: { className?: string }) {
         autoComplete="off"
         value={valor}
         onChange={(e) => aoDigitar(e.target.value)}
-        placeholder="Buscar produtos e serviços"
-        className="rounded-campo border-borda-forte bg-branco text-corpo text-tinta placeholder:text-suave/80 hover:border-tinta-3 focus:border-tinta h-10 w-full border pr-9 pl-9 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+        placeholder="Buscar produtos, marcas e serviços"
+        className="text-corpo text-tinta placeholder:text-suave h-full min-w-0 flex-1 bg-transparent pr-2 pl-4 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
       />
       {valor && (
         <button
           type="button"
           onClick={limpar}
-          className="rounded-campo text-suave hover:bg-papel-2 hover:text-tinta absolute top-1/2 right-2 -translate-y-1/2 p-1"
+          className="rounded-campo text-suave hover:bg-papel-2 hover:text-tinta mr-1 p-1"
           aria-label="Limpar busca"
         >
           <X className="size-4" aria-hidden />
         </button>
       )}
+      <button
+        type="submit"
+        className="border-borda text-suave hover:text-acao flex h-6 w-11 items-center justify-center border-l"
+        aria-label="Buscar"
+      >
+        <Search className="size-[18px]" aria-hidden strokeWidth={2} />
+      </button>
     </form>
   );
 }

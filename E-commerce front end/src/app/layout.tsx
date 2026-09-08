@@ -1,21 +1,18 @@
 import type { Metadata, Viewport } from 'next';
-import { Archivo, Fraunces } from 'next/font/google';
+import { Nunito_Sans } from 'next/font/google';
 import { DESCRICAO_LOJA, NOME_LOJA } from '@/lib/constantes';
 import { Providers } from '@/providers/providers';
 import './globals.css';
 
-/* Archivo em toda a interface; Fraunces só no wordmark e nos títulos de seção da home. */
-const archivo = Archivo({
+/*
+ * Uma família só, do wordmark ao rótulo de 11px. Nunito Sans é humanista e levemente
+ * arredondada — a mesma temperatura das lojas brasileiras que o cliente já conhece — e tem
+ * peso 200 a 900, o que sustenta preço leve e título pesado sem trocar de fonte.
+ */
+const nunito = Nunito_Sans({
   subsets: ['latin', 'latin-ext'],
-  variable: '--font-archivo',
+  variable: '--font-nunito',
   display: 'swap',
-});
-
-const fraunces = Fraunces({
-  subsets: ['latin', 'latin-ext'],
-  variable: '--font-fraunces',
-  display: 'swap',
-  axes: ['opsz', 'SOFT'],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#FBFAF8',
+  themeColor: '#FFF159',
   width: 'device-width',
   initialScale: 1,
 };
@@ -39,11 +36,7 @@ export const viewport: Viewport = {
  */
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html
-      lang="pt-BR"
-      data-scroll-behavior="smooth"
-      className={`${archivo.variable} ${fraunces.variable} h-full`}
-    >
+    <html lang="pt-BR" data-scroll-behavior="smooth" className={`${nunito.variable} h-full`}>
       <body className="flex min-h-full flex-col">
         <Providers>{children}</Providers>
       </body>

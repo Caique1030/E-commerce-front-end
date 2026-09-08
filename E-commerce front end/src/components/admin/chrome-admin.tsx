@@ -54,7 +54,7 @@ export function ChromeAdmin({ children }: { children: ReactNode }) {
       <GuardaSessao exige="equipe" esqueleto={<EsqueletoAdmin />}>
         <header className="bg-tinta text-branco">
           <div className="mx-auto flex max-w-[88rem] flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 sm:px-6 lg:px-8">
-            <Logo clara semSerifa sufixo="Admin" href="/admin" />
+            <Logo clara sufixo="Admin" href="/admin" />
             <nav
               aria-label="Administração"
               className="rolagem-discreta order-last -mx-1 flex w-full gap-1 overflow-x-auto sm:order-none sm:w-auto"

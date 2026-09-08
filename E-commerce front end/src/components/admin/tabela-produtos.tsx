@@ -69,7 +69,7 @@ export function TabelaProdutos() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-card border-borda bg-branco flex flex-wrap items-end gap-3 border px-4 py-3">
+      <div className="rounded-card border-borda bg-branco shadow-card flex flex-wrap items-end gap-3 border px-4 py-3">
         <div className="relative min-w-56 flex-1">
           <label htmlFor="busca-admin" className="sr-only">
             Buscar produtos
@@ -228,7 +228,7 @@ export function TabelaProdutos() {
                   <Td className="text-right">
                     <Link
                       href={`/admin/produtos/${p.id}`}
-                      className="text-apoio text-verde-nota font-medium hover:underline"
+                      className="text-apoio text-acao font-medium hover:underline"
                     >
                       Editar
                     </Link>

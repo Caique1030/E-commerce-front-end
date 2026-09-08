@@ -54,7 +54,7 @@ export function GraficoBarras({ pontos, className }: GraficoBarrasProps) {
   return (
     <section
       aria-labelledby={idTitulo}
-      className={cn('rounded-card border-borda bg-branco border p-5', className)}
+      className={cn('rounded-card border-borda bg-branco shadow-card border p-5', className)}
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
@@ -159,8 +159,8 @@ export function GraficoBarras({ pontos, className }: GraficoBarrasProps) {
                     >
                       <span
                         className={cn(
-                          'bg-verde-nota block w-full max-w-6 rounded-t-[4px] transition-colors',
-                          ativo === i && 'bg-verde-nota-2',
+                          'bg-verde block w-full max-w-6 rounded-t-[4px] transition-colors',
+                          ativo === i && 'bg-verde-2',
                         )}
                         style={{
                           height: `${Math.max(altura, p.faturamentoCentavos > 0 ? 1 : 0)}%`,

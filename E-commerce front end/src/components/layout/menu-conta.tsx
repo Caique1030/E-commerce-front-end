@@ -3,7 +3,6 @@
 import { ChevronDown, LayoutDashboard, LogOut, Package, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Botao } from '@/components/ui/botao';
 import { Esqueleto } from '@/components/ui/esqueleto';
 import {
   MenuConteudo,
@@ -23,17 +22,23 @@ export function MenuConta() {
   const { status, usuario, ehEquipe, sair } = useSessao();
   const router = useRouter();
 
-  if (status === 'carregando') return <Esqueleto className="h-9 w-24" />;
+  if (status === 'carregando') return <Esqueleto className="bg-tinta/10 h-9 w-24" />;
 
   if (status === 'anonimo' || !usuario) {
     return (
-      <div className="flex items-center gap-1">
-        <Botao asChild variante="fantasma" tamanho="sm" className="hidden sm:inline-flex">
-          <Link href="/criar-conta">Criar conta</Link>
-        </Botao>
-        <Botao asChild variante="secundario" tamanho="sm">
-          <Link href="/entrar">Entrar</Link>
-        </Botao>
+      <div className="text-apoio flex items-center gap-0.5">
+        <Link
+          href="/criar-conta"
+          className="rounded-campo hover:bg-tinta/10 hidden h-9 items-center px-2.5 sm:inline-flex"
+        >
+          Crie a sua conta
+        </Link>
+        <Link
+          href="/entrar"
+          className="rounded-campo hover:bg-tinta/10 flex h-9 items-center px-2.5 font-semibold"
+        >
+          Entrar
+        </Link>
       </div>
     );
   }
@@ -49,7 +54,7 @@ export function MenuConta() {
       <MenuGatilho asChild>
         <button
           type="button"
-          className="rounded-campo text-corpo hover:bg-papel-2 data-[state=open]:bg-papel-2 flex h-9 items-center gap-2 px-2"
+          className="rounded-campo text-apoio hover:bg-tinta/10 data-[state=open]:bg-tinta/10 flex h-9 items-center gap-2 px-2"
           aria-label={`Conta de ${usuario.nome}`}
         >
           <span

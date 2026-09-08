@@ -18,7 +18,7 @@ function EsqueletoPagina() {
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]" aria-busy>
       <div>
         <Esqueleto className="mb-4 h-8 w-40" />
-        <ul className="divide-borda rounded-card border-borda bg-branco divide-y border px-5">
+        <ul className="divide-borda rounded-card border-borda bg-branco shadow-card divide-y border px-5">
           <EsqueletoLinhaCarrinho />
           <EsqueletoLinhaCarrinho />
           <EsqueletoLinhaCarrinho />
@@ -119,7 +119,7 @@ function ConteudoCarrinho() {
           </p>
         )}
 
-        <ul className="divide-borda rounded-card border-borda bg-branco divide-y border px-5">
+        <ul className="divide-borda rounded-card border-borda bg-branco shadow-card divide-y border px-5">
           {itens.map((item) => (
             <LinhaItemConectada key={item.id} item={item} />
           ))}
@@ -127,7 +127,7 @@ function ConteudoCarrinho() {
       </section>
 
       <aside className="lg:sticky lg:top-24 lg:self-start" aria-label="Resumo do carrinho">
-        <div className="rounded-card border-borda bg-branco flex flex-col gap-4 border p-5">
+        <div className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5">
           <h2 className="text-h2">Resumo</h2>
           <ResumoValores subtotalCentavos={subtotalCentavos} totalItens={totalItens} />
           <Botao

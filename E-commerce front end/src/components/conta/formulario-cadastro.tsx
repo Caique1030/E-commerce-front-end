@@ -63,7 +63,7 @@ export function FormularioCadastro() {
         <h1 className="text-h1">Criar conta</h1>
         <p className="text-corpo text-suave mt-1">
           Já tem conta?{' '}
-          <Link href={entrarHref} className="text-verde-nota underline-offset-4 hover:underline">
+          <Link href={entrarHref} className="text-acao underline-offset-4 hover:underline">
             Entre
           </Link>
           .
@@ -73,7 +73,7 @@ export function FormularioCadastro() {
       <form
         onSubmit={form.handleSubmit(aoEnviar)}
         noValidate
-        className="rounded-card border-borda bg-branco flex flex-col gap-4 border p-5"
+        className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5"
       >
         {erro && (
           <p

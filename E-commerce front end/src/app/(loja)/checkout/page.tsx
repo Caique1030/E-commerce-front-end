@@ -15,7 +15,7 @@ function EsqueletoPagina() {
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]" aria-busy>
       <div>
         <Esqueleto className="mb-4 h-8 w-48" />
-        <ul className="divide-borda rounded-card border-borda bg-branco divide-y border px-5">
+        <ul className="divide-borda rounded-card border-borda bg-branco shadow-card divide-y border px-5">
           <EsqueletoLinhaCarrinho />
           <EsqueletoLinhaCarrinho />
         </ul>

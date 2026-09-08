@@ -53,7 +53,7 @@ export function ArvoreCategorias({ aoNavegar, className }: ArvoreProps) {
     });
 
   const linkBase =
-    'flex min-h-9 flex-1 items-center rounded-campo px-2 text-corpo text-tinta hover:bg-papel-2 aria-[current=page]:bg-verde-suave aria-[current=page]:font-medium aria-[current=page]:text-verde-nota';
+    'flex min-h-9 flex-1 items-center rounded-campo px-2 text-corpo text-tinta hover:bg-papel-2 aria-[current=page]:bg-acao-suave aria-[current=page]:font-medium aria-[current=page]:text-acao';
 
   return (
     <nav aria-label="Categorias" className={cn('text-corpo', className)}>

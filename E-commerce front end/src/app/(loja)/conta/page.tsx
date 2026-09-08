@@ -83,7 +83,7 @@ function FormularioNome({ nomeAtual }: { nomeAtual: string }) {
     <form
       onSubmit={form.handleSubmit(aoEnviar)}
       noValidate
-      className="rounded-card border-borda bg-branco flex flex-col gap-4 border p-5"
+      className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5"
     >
       <h2 className="text-h2">Seus dados</h2>
       <Campo rotulo="Nome completo" erro={form.formState.errors.nome?.message} obrigatorio>
@@ -137,7 +137,7 @@ function FormularioSenhaConta() {
     <form
       onSubmit={form.handleSubmit(aoEnviar)}
       noValidate
-      className="rounded-card border-borda bg-branco flex flex-col gap-4 border p-5"
+      className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5"
     >
       <h2 className="text-h2">Senha</h2>
       <Campo rotulo="Senha atual" erro={erros.senhaAtual?.message} obrigatorio>

@@ -16,6 +16,25 @@ export function centavosParaBRL(centavos: number): string {
 }
 
 /**
+ * 129900 → { moeda: "R$", inteiro: "1.299", centavos: "00" }.
+ * O preço da vitrine é desenhado em duas alturas: os reais grandes, os centavos sobrescritos.
+ */
+export function partesPreco(centavos: number): {
+  moeda: string;
+  inteiro: string;
+  centavos: string;
+} {
+  const arredondado = Number.isFinite(centavos) ? Math.round(centavos) : 0;
+  const absoluto = Math.abs(arredondado);
+  const inteiro = formatarInteiro(Math.trunc(absoluto / 100));
+  return {
+    moeda: 'R$',
+    inteiro: arredondado < 0 ? `-${inteiro}` : inteiro,
+    centavos: String(absoluto % 100).padStart(2, '0'),
+  };
+}
+
+/**
  * "R$ 1.299,90" | "1299,90" | "1299.90" | "1.299" | "1299" → centavos inteiros.
  * Devolve null para entrada vazia ou ilegível. Arredonda meio para cima na terceira casa.
  * Aritmética em string: nunca passa por float.

@@ -7,7 +7,7 @@ export type VarianteBadge = 'neutro' | 'verde' | 'agenda' | 'alerta' | 'aviso' |
 
 const variantes: Record<VarianteBadge, string> = {
   neutro: 'bg-papel-2 text-tinta-3 border-borda',
-  verde: 'bg-verde-suave text-verde-nota border-verde-nota/20',
+  verde: 'bg-verde-suave text-verde border-verde/25',
   agenda: 'bg-agenda-suave text-agenda border-agenda/20',
   alerta: 'bg-alerta-suave text-alerta border-alerta/20',
   aviso: 'bg-aviso-suave text-aviso border-aviso/20',

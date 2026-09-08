@@ -150,7 +150,7 @@ function NoCategoria({ categoria, irmaos, indice, abrirModal }: NoProps) {
   return (
     <li
       className={cn(
-        'rounded-card border-borda bg-branco border',
+        'rounded-card border-borda bg-branco shadow-card border',
         categoria.nivel > 0 && 'border-0 border-l bg-transparent',
       )}
     >

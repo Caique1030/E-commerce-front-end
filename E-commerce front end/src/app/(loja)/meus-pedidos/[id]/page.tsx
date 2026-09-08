@@ -81,7 +81,7 @@ function Detalhe() {
       <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_16rem]">
         <section
           aria-labelledby="titulo-itens"
-          className="rounded-card border-borda bg-branco border px-5 py-2"
+          className="rounded-card border-borda bg-branco shadow-card border px-5 py-2"
         >
           <h2 id="titulo-itens" className="sr-only">
             Itens
@@ -92,7 +92,7 @@ function Detalhe() {
 
         <section
           aria-labelledby="titulo-historico"
-          className="rounded-card border-borda bg-branco border p-5"
+          className="rounded-card border-borda bg-branco shadow-card border p-5"
         >
           <h2 id="titulo-historico" className="text-h2 mb-4">
             Acompanhamento

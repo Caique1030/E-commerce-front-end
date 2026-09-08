@@ -92,7 +92,7 @@ export function Dashboard() {
   return (
     <div className="flex flex-col gap-5">
       {/* Filtros: uma linha, acima de tudo; escopam todos os números abaixo. */}
-      <div className="rounded-card border-borda bg-branco flex flex-wrap items-center gap-3 border px-4 py-3">
+      <div className="rounded-card border-borda bg-branco shadow-card flex flex-wrap items-center gap-3 border px-4 py-3">
         <div
           className="rounded-campo border-borda-forte text-apoio flex border p-0.5"
           role="group"
@@ -197,7 +197,7 @@ export function Dashboard() {
 
             <section
               aria-labelledby="titulo-status"
-              className="rounded-card border-borda bg-branco border p-5"
+              className="rounded-card border-borda bg-branco shadow-card border p-5"
             >
               <h2 id="titulo-status" className="text-h2">
                 Pedidos por status
@@ -247,7 +247,7 @@ export function Dashboard() {
             compacto
           />
         ) : top.data.length === 0 ? (
-          <p className="rounded-card border-borda bg-branco text-corpo text-suave border p-6 text-center">
+          <p className="rounded-card border-borda bg-branco shadow-card text-corpo text-suave border p-6 text-center">
             Nenhuma venda no período.
           </p>
         ) : (
@@ -296,8 +296,8 @@ function CartaoMetrica({
   return (
     <div
       className={cn(
-        'rounded-card border-borda bg-branco border p-4',
-        destaque && 'border-verde-nota/30 bg-verde-suave/40',
+        'rounded-card border-borda bg-branco shadow-card border p-4',
+        destaque && 'border-verde/30 bg-verde-suave/40',
       )}
     >
       <p className="text-apoio text-suave">{rotulo}</p>

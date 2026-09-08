@@ -22,10 +22,12 @@ interface CatalogoProps {
   /** Slug vindo da rota /categoria/[slug]; a URL não carrega `categoria` nesse caso. */
   categoriaFixa?: string;
   descricao?: string;
+  /** Na home a vitrine vem antes: ali o título da grade é h2, não o título da página. */
+  nivelTitulo?: 1 | 2;
 }
 
 /** Catálogo completo: barra de resultados, chips de filtro, grade com os quatro estados e paginação. */
-export function Catalogo({ titulo, categoriaFixa, descricao }: CatalogoProps) {
+export function Catalogo({ titulo, categoriaFixa, descricao, nivelTitulo = 1 }: CatalogoProps) {
   const { filtros, filtrosApi, atualizar, mudarPagina, limpar, temFiltros } =
     useFiltrosCatalogo(categoriaFixa);
   const consulta = useProdutos(filtrosApi);
@@ -35,6 +37,7 @@ export function Catalogo({ titulo, categoriaFixa, descricao }: CatalogoProps) {
 
   const total = consulta.data?.meta.total ?? 0;
   const totalPaginas = consulta.data?.meta.totalPages ?? 1;
+  const Titulo = nivelTitulo === 1 ? 'h1' : 'h2';
 
   const chips: { rotulo: string; remover: () => void }[] = [];
   if (filtros.busca)
@@ -58,12 +61,15 @@ export function Catalogo({ titulo, categoriaFixa, descricao }: CatalogoProps) {
 
   return (
     <section aria-labelledby="titulo-catalogo" className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+      <div className="painel flex flex-col gap-3 px-4 py-4">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
           <div>
-            <h1 id="titulo-catalogo" className={cn(categoriaFixa ? 'text-h1' : 'titulo-display')}>
+            <Titulo
+              id="titulo-catalogo"
+              className={cn(nivelTitulo === 1 && !categoriaFixa ? 'titulo-display' : 'text-h1')}
+            >
               {titulo}
-            </h1>
+            </Titulo>
             {descricao && <p className="text-corpo text-suave mt-1">{descricao}</p>}
           </div>
           <p className="preco text-apoio text-suave" aria-live="polite">
@@ -75,7 +81,7 @@ export function Catalogo({ titulo, categoriaFixa, descricao }: CatalogoProps) {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="border-borda flex flex-wrap items-center gap-2 border-t pt-3">
           <div className="flex gap-2 lg:hidden">
             <Botao variante="secundario" tamanho="sm" onClick={() => abrirMenu(true)}>
               Categorias
@@ -110,11 +116,11 @@ export function Catalogo({ titulo, categoriaFixa, descricao }: CatalogoProps) {
               key={c.rotulo}
               type="button"
               onClick={c.remover}
-              className="border-borda-forte bg-branco text-apoio hover:border-tinta inline-flex h-8 items-center gap-1 rounded-full border pr-2 pl-3"
+              className="bg-acao-suave text-acao text-apoio hover:bg-acao hover:text-branco inline-flex h-8 items-center gap-1 rounded-full pr-2 pl-3 font-semibold transition-colors"
               aria-label={`Remover filtro ${c.rotulo}`}
             >
               {c.rotulo}
-              <X className="text-suave size-3.5" aria-hidden />
+              <X className="size-3.5" aria-hidden />
             </button>
           ))}
           {chips.length > 1 && (
@@ -149,24 +155,26 @@ export function Catalogo({ titulo, categoriaFixa, descricao }: CatalogoProps) {
           tentandoDeNovo={consulta.isFetching}
         />
       ) : consulta.data.data.length === 0 ? (
-        <Vazio
-          ilustracao="busca"
-          titulo={
-            filtros.busca
-              ? `Nenhum produto encontrado para “${filtros.busca}”.`
-              : 'Nenhum produto por aqui.'
-          }
-          descricao={
-            temFiltros ? 'Tente outro termo ou remova os filtros.' : 'Explore outras categorias.'
-          }
-          acao={
-            temFiltros ? (
-              <Botao variante="secundario" onClick={limpar}>
-                Limpar filtros
-              </Botao>
-            ) : undefined
-          }
-        />
+        <div className="painel">
+          <Vazio
+            ilustracao="busca"
+            titulo={
+              filtros.busca
+                ? `Nenhum produto encontrado para “${filtros.busca}”.`
+                : 'Nenhum produto por aqui.'
+            }
+            descricao={
+              temFiltros ? 'Tente outro termo ou remova os filtros.' : 'Explore outras categorias.'
+            }
+            acao={
+              temFiltros ? (
+                <Botao variante="secundario" onClick={limpar}>
+                  Limpar filtros
+                </Botao>
+              ) : undefined
+            }
+          />
+        </div>
       ) : (
         <div
           className={cn(

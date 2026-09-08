@@ -66,7 +66,7 @@ export function TabelaUsuarios() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-card border-borda bg-branco flex flex-wrap items-end gap-3 border px-4 py-3">
+      <div className="rounded-card border-borda bg-branco shadow-card flex flex-wrap items-end gap-3 border px-4 py-3">
         <div className="relative min-w-56 flex-1">
           <label htmlFor="busca-usuarios" className="sr-only">
             Buscar usuários
@@ -201,7 +201,7 @@ export function TabelaUsuarios() {
                         type="button"
                         disabled={souEu || alterar.isPending}
                         onClick={() => alterar.mutate({ id: u.id, dados: { ativo: !u.ativo } })}
-                        className="text-apoio text-verde-nota disabled:text-suave mr-3 font-medium hover:underline disabled:no-underline"
+                        className="text-apoio text-acao disabled:text-suave mr-3 font-medium hover:underline disabled:no-underline"
                       >
                         {u.ativo ? 'Desativar' : 'Reativar'}
                       </button>

@@ -18,7 +18,7 @@ export function GradeProdutos({ produtos, className, primeiraPagina = true }: Gr
   const prefetch = usePrefetchProduto();
 
   return (
-    <ul className={cn('grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4', className)}>
+    <ul className={cn('grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4', className)}>
       {produtos.map((p, i) => (
         <li key={p.id} className="flex">
           <CardProduto

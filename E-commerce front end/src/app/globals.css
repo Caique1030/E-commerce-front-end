@@ -2,68 +2,96 @@
 
 /*
  * Tokens de design da loja. Tudo que a interface usa de cor, tipo e forma nasce aqui.
- * Duas cores de ação com significado fixo: verde compra, violeta agenda. Nunca uma no papel da outra.
+ *
+ * Linguagem visual de marketplace brasileiro: amarelo no cabeçalho, fundo cinza, cards brancos
+ * flutuando sobre ele, azul como única cor de ação e azul-claro para o que está selecionado.
+ * Verde nunca é decoração — só aparece onde o cliente ganha algo (frete grátis, desconto, pago).
+ * Violeta continua sendo o serviço agendado, o que esta loja tem e um marketplace comum não tem.
  */
 @theme {
   --color-*: initial;
 
-  --color-tinta: #16202b;
-  --color-tinta-2: #2a3745;
-  --color-tinta-3: #3f4c5b;
-  --color-papel: #fbfaf8;
-  --color-papel-2: #f3f1ec;
+  /* Tinta */
+  --color-tinta: #1f1f1f;
+  --color-tinta-2: #3d3d3d;
+  --color-tinta-3: #5c5c5c;
+  --color-suave: #707070;
+
+  /* Superfícies */
+  --color-papel: #ebebeb;
+  --color-papel-2: #f5f5f5;
+  --color-papel-3: #e0e0e0;
   --color-branco: #ffffff;
 
-  --color-verde-nota: #0e6b4f;
-  --color-verde-nota-2: #0a5a42;
-  --color-verde-suave: #e4f1eb;
+  /* Amarelo: cabeçalho e destaques de vitrine. Texto sobre ele é sempre tinta. */
+  --color-amarelo: #fff159;
+  --color-amarelo-2: #ffe600;
+  --color-amarelo-3: #f5d800;
 
-  --color-agenda: #4b37a8;
-  --color-agenda-2: #3c2b8b;
-  --color-agenda-suave: #ebe8f7;
-  --color-agenda-tinta: #c9c1ea;
+  /* Azul: a única cor de ação. Botão principal, link, item selecionado, foco. */
+  --color-acao: #3483fa;
+  --color-acao-2: #2968c8;
+  --color-acao-3: #1c4f9c;
+  --color-acao-suave: #e3edfb;
 
-  --color-alerta: #a8320f;
-  --color-alerta-suave: #f9e9e4;
+  /* Verde: benefício para o cliente. Frete grátis, desconto, pedido pago. */
+  --color-verde: #00a650;
+  --color-verde-2: #008a43;
+  --color-verde-suave: #e5f5ec;
 
-  --color-aviso: #8a5a00;
-  --color-aviso-suave: #fbf1dc;
+  /* Violeta: serviço agendado, do card ao carrinho. */
+  --color-agenda: #7b3ff2;
+  --color-agenda-2: #6329d6;
+  --color-agenda-suave: #f0e9ff;
+  --color-agenda-tinta: #d4c2ff;
 
-  --color-borda: #e4e1db;
-  --color-borda-forte: #c9c4bb;
-  /* #6B7580 da especificação dava 4,49:1 sobre o papel; este passa de 5:1. */
-  --color-suave: #5f6975;
+  --color-alerta: #d92d20;
+  --color-alerta-suave: #fdecea;
 
-  --font-ui: var(--font-archivo), system-ui, sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --color-aviso: #b25c00;
+  --color-aviso-suave: #fff3e0;
 
-  --text-display: 2rem;
+  --color-borda: #e6e6e6;
+  --color-borda-forte: #cfcfcf;
+
+  --font-ui: var(--font-nunito), system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Escala de 14px: densidade de marketplace, onde cabe muito produto por tela. */
+  --text-display: 1.75rem;
   --text-display--line-height: 2.25rem;
-  --text-display--font-weight: 600;
-  --text-h1: 1.625rem;
-  --text-h1--line-height: 2rem;
-  --text-h1--font-weight: 700;
-  --text-h2: 1.25rem;
-  --text-h2--line-height: 1.75rem;
+  --text-display--font-weight: 700;
+  --text-h1: 1.375rem;
+  --text-h1--line-height: 1.75rem;
+  --text-h1--font-weight: 600;
+  --text-h2: 1.125rem;
+  --text-h2--line-height: 1.5rem;
   --text-h2--font-weight: 600;
-  --text-corpo: 0.9375rem;
-  --text-corpo--line-height: 1.5rem;
+  --text-corpo: 0.875rem;
+  --text-corpo--line-height: 1.25rem;
   --text-apoio: 0.8125rem;
-  --text-apoio--line-height: 1.25rem;
+  --text-apoio--line-height: 1.125rem;
   --text-micro: 0.6875rem;
-  --text-micro--line-height: 1rem;
-  --text-preco: 1.375rem;
-  --text-preco--line-height: 1.75rem;
-  --text-preco--font-weight: 700;
-  --text-preco-sm: 0.9375rem;
-  --text-preco-sm--line-height: 1.25rem;
-  --text-preco-sm--font-weight: 600;
+  --text-micro--line-height: 0.875rem;
 
-  --radius-card: 0.5rem;
+  /* Preço em peso leve e corpo grande — o número domina sem gritar. */
+  --text-preco: 2rem;
+  --text-preco--line-height: 2.375rem;
+  --text-preco--font-weight: 400;
+  --text-preco-md: 1.5rem;
+  --text-preco-md--line-height: 1.875rem;
+  --text-preco-md--font-weight: 400;
+  --text-preco-sm: 1.125rem;
+  --text-preco-sm--line-height: 1.5rem;
+  --text-preco-sm--font-weight: 500;
+
+  --radius-card: 0.375rem;
   --radius-campo: 0.375rem;
 
-  /* Sombra só para o que flutua de verdade: drawer, dropdown, modal. Card não tem sombra. */
-  --shadow-flutuante: 0 16px 40px -12px rgb(22 32 43 / 0.28), 0 2px 8px rgb(22 32 43 / 0.08);
+  /* Card não tem borda: o que o separa do fundo cinza é a sombra. */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.14);
+  --shadow-card-alto: 0 4px 14px rgb(0 0 0 / 0.16);
+  --shadow-barra: 0 1px 2px rgb(0 0 0 / 0.16);
+  --shadow-flutuante: 0 16px 40px -12px rgb(0 0 0 / 0.3), 0 2px 8px rgb(0 0 0 / 0.12);
 
   --ease-drawer: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -72,7 +100,7 @@
 
   @keyframes destaque {
     0% {
-      background-color: var(--color-verde-suave);
+      background-color: var(--color-acao-suave);
     }
     100% {
       background-color: transparent;
@@ -103,14 +131,14 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
-  /* Foco visível em tudo. Verde por ser a cor primária da loja; o contorno nunca depende só de cor. */
+  /* Foco visível em tudo, na cor de ação; o contorno nunca depende só de cor. */
   :focus-visible {
-    outline: 2px solid var(--color-verde-nota);
+    outline: 2px solid var(--color-acao);
     outline-offset: 2px;
     border-radius: 2px;
   }
   ::selection {
-    background-color: var(--color-verde-suave);
+    background-color: var(--color-acao-suave);
   }
   button,
   [role='button'] {
@@ -123,12 +151,12 @@
   input::placeholder,
   textarea::placeholder {
     color: var(--color-suave);
-    opacity: 0.8;
+    opacity: 0.9;
   }
   /* Numeral tabular alinha as casas decimais em qualquer lista de preços. */
   .preco {
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
   @media (prefers-reduced-motion: reduce) {
     html {
@@ -137,24 +165,67 @@
   }
 }
 
-/* Wordmark: Fraunces com o eixo SOFT ativado — serifas arredondadas só aqui. */
+/* Largura única do conteúdo: cabeçalho, faixas da home, catálogo e rodapé alinham na mesma coluna. */
+.conteudo {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 75rem;
+  padding-inline: 1rem;
+}
+
+/* Wordmark da loja: peso alto e tracking fechado, sempre ao lado da marca desenhada. */
 .wordmark {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-variation-settings:
-    'SOFT' 60,
-    'opsz' 48;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+/* Título de faixa da home. */
+.titulo-display {
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
-/* Título de seção da home: Fraunces com opsz alto, sem SOFT. */
-.titulo-display {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: var(--text-display);
-  line-height: var(--text-display--line-height);
-  font-variation-settings: 'opsz' 40;
-  letter-spacing: -0.015em;
+/* Painel branco sobre o cinza: a unidade de composição de toda a loja. */
+.painel {
+  background-color: var(--color-branco);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/*
+ * Trilho horizontal de produtos (ofertas, novidades, serviços). Rola no toque e por botão
+ * no desktop; cada card é um ponto de parada.
+ *
+ * A coluna tem largura fixa, não `1fr`: com fração, três produtos esticavam para o dobro da
+ * largura de doze e o mesmo card aparecia em dois tamanhos na mesma página. Fixa, a célula é
+ * a mesma em qualquer trilho, com qualquer número de produtos.
+ */
+.trilho {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 10rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.trilho::-webkit-scrollbar {
+  display: none;
+}
+.trilho > * {
+  scroll-snap-align: start;
+}
+@media (min-width: 640px) {
+  .trilho {
+    grid-auto-columns: 11.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .trilho {
+    grid-auto-columns: 12rem;
+  }
 }
 
 /*
@@ -233,6 +304,20 @@
 .modal-painel[data-state='closed'] {
   animation: sumir 120ms ease-in;
 }
+
+/* Troca de banner no carrossel da home: só opacidade, nunca deslocamento. */
+@keyframes banner-entrar {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.banner-ativo {
+  animation: banner-entrar 400ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drawer-painel[data-state='open'],
   .drawer-painel-esquerda[data-state='open'] {
@@ -244,7 +329,10 @@
   }
   .animate-destaque {
     animation: none;
-    background-color: var(--color-verde-suave);
+    background-color: var(--color-acao-suave);
+  }
+  .banner-ativo {
+    animation: none;
   }
 }
 

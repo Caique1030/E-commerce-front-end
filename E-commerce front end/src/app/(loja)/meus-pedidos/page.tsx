@@ -71,7 +71,7 @@ function Lista() {
         />
       ) : (
         <>
-          <ul className="divide-borda rounded-card border-borda bg-branco divide-y border">
+          <ul className="divide-borda rounded-card border-borda bg-branco shadow-card divide-y border">
             {pedidos.data.data.map((p) => (
               <li key={p.id}>
                 <Link

@@ -55,7 +55,7 @@ export function FormularioEntrar() {
         <h1 className="text-h1">Entrar</h1>
         <p className="text-corpo text-suave mt-1">
           Ainda não tem conta?{' '}
-          <Link href={cadastroHref} className="text-verde-nota underline-offset-4 hover:underline">
+          <Link href={cadastroHref} className="text-acao underline-offset-4 hover:underline">
             Crie uma em um minuto
           </Link>
           .
@@ -65,7 +65,7 @@ export function FormularioEntrar() {
       <form
         onSubmit={form.handleSubmit(aoEnviar)}
         noValidate
-        className="rounded-card border-borda bg-branco flex flex-col gap-4 border p-5"
+        className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5"
       >
         {erro && (
           <p

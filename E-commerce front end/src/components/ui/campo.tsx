@@ -22,7 +22,7 @@ export function capitalizarMensagem(m?: string): string | undefined {
 
 const estiloBase =
   'w-full rounded-campo border bg-branco px-3 text-corpo text-tinta placeholder:text-suave/80 transition-colors ' +
-  'border-borda-forte hover:border-tinta-3 focus:border-tinta focus:outline-none ' +
+  'border-borda-forte hover:border-tinta-3 focus:border-acao focus:ring-acao/30 focus:ring-2 focus:outline-none ' +
   'disabled:cursor-not-allowed disabled:bg-papel-2 disabled:text-suave ' +
   'aria-[invalid=true]:border-alerta aria-[invalid=true]:focus:border-alerta';
 
@@ -150,7 +150,7 @@ export const Caixa = forwardRef<HTMLInputElement, CaixaProps>(function Caixa(
         ref={ref}
         id={idFinal}
         type="checkbox"
-        className="border-borda-forte accent-verde-nota mt-0.5 size-4 shrink-0 cursor-pointer rounded-sm"
+        className="border-borda-forte accent-acao mt-0.5 size-4 shrink-0 cursor-pointer rounded-sm"
         {...props}
       />
       <span className="text-corpo">

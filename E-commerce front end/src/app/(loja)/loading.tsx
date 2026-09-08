@@ -1,11 +1,13 @@
 import { EsqueletoGrade } from '@/components/estados/skeletons';
-import { LayoutCatalogo } from '@/components/layout/layout-catalogo';
+import { Esqueleto } from '@/components/ui/esqueleto';
 
 /** A home espera o prefetch do catálogo antes de renderizar; sem isto a tela ficava em branco. */
 export default function CarregandoHome() {
   return (
-    <LayoutCatalogo>
+    <div className="flex flex-col gap-4" aria-busy>
+      <Esqueleto className="rounded-card h-[15rem] w-full sm:h-[17rem] lg:h-[19rem]" />
+      <Esqueleto className="rounded-card h-28 w-full" />
       <EsqueletoGrade />
-    </LayoutCatalogo>
+    </div>
   );
 }

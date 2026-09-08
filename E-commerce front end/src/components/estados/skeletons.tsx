@@ -5,14 +5,14 @@ import { cn } from '@/lib/utils';
 
 export function EsqueletoCardProduto() {
   return (
-    <div className="rounded-card border-borda bg-branco flex flex-col overflow-hidden border">
-      <Esqueleto className="aspect-[4/3] w-full rounded-none" />
-      <div className="flex flex-col gap-2 p-4">
+    <div className="rounded-card bg-branco shadow-card flex flex-col overflow-hidden">
+      <Esqueleto className="aspect-square w-full rounded-none" />
+      <div className="flex flex-col gap-2 p-3">
         <Esqueleto className="h-3 w-16" />
         <Esqueleto className="h-4 w-4/5" />
         <Esqueleto className="h-4 w-3/5" />
-        <Esqueleto className="mt-2 h-5 w-24" />
-        <Esqueleto className="h-3 w-20" />
+        <Esqueleto className="mt-2 h-7 w-28" />
+        <Esqueleto className="h-3 w-24" />
         <Esqueleto className="mt-2 h-10 w-full" />
       </div>
     </div>
@@ -28,7 +28,7 @@ export function EsqueletoGrade({
 }) {
   return (
     <div
-      className={cn('grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4', className)}
+      className={cn('grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4', className)}
       aria-busy
       aria-label="Carregando produtos"
     >
@@ -90,7 +90,10 @@ export function EsqueletoTabela({
   colunas?: number;
 }) {
   return (
-    <div className="rounded-card border-borda bg-branco overflow-hidden border" aria-busy>
+    <div
+      className="rounded-card border-borda bg-branco shadow-card overflow-hidden border"
+      aria-busy
+    >
       <div className="border-borda bg-papel-2 flex gap-4 border-b px-3 py-3">
         {Array.from({ length: colunas }, (_, i) => (
           <Esqueleto key={i} className="h-3 flex-1" />
@@ -111,7 +114,7 @@ export function EsqueletoCartoes({ quantidade = 4 }: { quantidade?: number }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-busy>
       {Array.from({ length: quantidade }, (_, i) => (
-        <div key={i} className="rounded-card border-borda bg-branco border p-4">
+        <div key={i} className="rounded-card border-borda bg-branco shadow-card border p-4">
           <Esqueleto className="h-3 w-24" />
           <Esqueleto className="mt-3 h-7 w-32" />
         </div>

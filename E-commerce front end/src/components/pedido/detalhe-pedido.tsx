@@ -106,7 +106,7 @@ export function LinhaTempoPedido({
             <span
               className={cn(
                 'border-branco absolute top-1.5 -left-[1.4rem] size-2.5 rounded-full border-2',
-                ultimo ? 'bg-verde-nota' : 'bg-borda-forte',
+                ultimo ? 'bg-verde' : 'bg-borda-forte',
                 h.para === 'CANCELADO' && 'bg-alerta',
               )}
               aria-hidden

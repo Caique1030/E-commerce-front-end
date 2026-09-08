@@ -58,7 +58,7 @@ export function Calendario({ valor, aoEscolher, diasSemVaga, className }: Calend
   const rotuloMes = format(mes, "MMMM 'de' yyyy", { locale: ptBR });
 
   return (
-    <div className={cn('rounded-card border-borda bg-branco border p-3', className)}>
+    <div className={cn('rounded-card border-borda bg-branco shadow-card border p-3', className)}>
       <div className="mb-2 flex items-center justify-between">
         <button
           type="button"
