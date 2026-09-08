@@ -1,0 +1,264 @@
+@import 'tailwindcss';
+
+/*
+ * Tokens de design da loja. Tudo que a interface usa de cor, tipo e forma nasce aqui.
+ * Duas cores de ação com significado fixo: verde compra, violeta agenda. Nunca uma no papel da outra.
+ */
+@theme {
+  --color-*: initial;
+
+  --color-tinta: #16202b;
+  --color-tinta-2: #2a3745;
+  --color-tinta-3: #3f4c5b;
+  --color-papel: #fbfaf8;
+  --color-papel-2: #f3f1ec;
+  --color-branco: #ffffff;
+
+  --color-verde-nota: #0e6b4f;
+  --color-verde-nota-2: #0a5a42;
+  --color-verde-suave: #e4f1eb;
+
+  --color-agenda: #4b37a8;
+  --color-agenda-2: #3c2b8b;
+  --color-agenda-suave: #ebe8f7;
+  --color-agenda-tinta: #c9c1ea;
+
+  --color-alerta: #a8320f;
+  --color-alerta-suave: #f9e9e4;
+
+  --color-aviso: #8a5a00;
+  --color-aviso-suave: #fbf1dc;
+
+  --color-borda: #e4e1db;
+  --color-borda-forte: #c9c4bb;
+  /* #6B7580 da especificação dava 4,49:1 sobre o papel; este passa de 5:1. */
+  --color-suave: #5f6975;
+
+  --font-ui: var(--font-archivo), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+
+  --text-display: 2rem;
+  --text-display--line-height: 2.25rem;
+  --text-display--font-weight: 600;
+  --text-h1: 1.625rem;
+  --text-h1--line-height: 2rem;
+  --text-h1--font-weight: 700;
+  --text-h2: 1.25rem;
+  --text-h2--line-height: 1.75rem;
+  --text-h2--font-weight: 600;
+  --text-corpo: 0.9375rem;
+  --text-corpo--line-height: 1.5rem;
+  --text-apoio: 0.8125rem;
+  --text-apoio--line-height: 1.25rem;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1rem;
+  --text-preco: 1.375rem;
+  --text-preco--line-height: 1.75rem;
+  --text-preco--font-weight: 700;
+  --text-preco-sm: 0.9375rem;
+  --text-preco-sm--line-height: 1.25rem;
+  --text-preco-sm--font-weight: 600;
+
+  --radius-card: 0.5rem;
+  --radius-campo: 0.375rem;
+
+  /* Sombra só para o que flutua de verdade: drawer, dropdown, modal. Card não tem sombra. */
+  --shadow-flutuante: 0 16px 40px -12px rgb(22 32 43 / 0.28), 0 2px 8px rgb(22 32 43 / 0.08);
+
+  --ease-drawer: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-destaque: destaque 1.4s ease-out 1 both;
+  --animate-esqueleto: esqueleto 1.6s ease-in-out infinite;
+
+  @keyframes destaque {
+    0% {
+      background-color: var(--color-verde-suave);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+  @keyframes esqueleto {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--color-papel);
+    color: var(--color-tinta);
+    font-family: var(--font-ui);
+    font-size: var(--text-corpo);
+    line-height: var(--text-corpo--line-height);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* Foco visível em tudo. Verde por ser a cor primária da loja; o contorno nunca depende só de cor. */
+  :focus-visible {
+    outline: 2px solid var(--color-verde-nota);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  ::selection {
+    background-color: var(--color-verde-suave);
+  }
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-suave);
+    opacity: 0.8;
+  }
+  /* Numeral tabular alinha as casas decimais em qualquer lista de preços. */
+  .preco {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+/* Wordmark: Fraunces com o eixo SOFT ativado — serifas arredondadas só aqui. */
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-variation-settings:
+    'SOFT' 60,
+    'opsz' 48;
+  letter-spacing: -0.02em;
+}
+
+/* Título de seção da home: Fraunces com opsz alto, sem SOFT. */
+.titulo-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  font-variation-settings: 'opsz' 40;
+  letter-spacing: -0.015em;
+}
+
+/*
+ * O único momento orquestrado da loja: o drawer do carrinho entra em 180ms com ease-out.
+ * Com prefers-reduced-motion, só a opacidade muda.
+ */
+@keyframes drawer-entrar {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-sair {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes surgir {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sumir {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.drawer-overlay[data-state='open'] {
+  animation: surgir 180ms ease-out;
+}
+.drawer-overlay[data-state='closed'] {
+  animation: sumir 150ms ease-in;
+}
+.drawer-painel[data-state='open'] {
+  animation: drawer-entrar 180ms var(--ease-drawer);
+}
+.drawer-painel[data-state='closed'] {
+  animation: drawer-sair 150ms ease-in;
+}
+@keyframes drawer-entrar-esquerda {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes drawer-sair-esquerda {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+.drawer-painel-esquerda[data-state='open'] {
+  animation: drawer-entrar-esquerda 180ms var(--ease-drawer);
+}
+.drawer-painel-esquerda[data-state='closed'] {
+  animation: drawer-sair-esquerda 150ms ease-in;
+}
+.modal-painel[data-state='open'] {
+  animation: surgir 140ms ease-out;
+}
+.modal-painel[data-state='closed'] {
+  animation: sumir 120ms ease-in;
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawer-painel[data-state='open'],
+  .drawer-painel-esquerda[data-state='open'] {
+    animation: surgir 180ms ease-out;
+  }
+  .drawer-painel[data-state='closed'],
+  .drawer-painel-esquerda[data-state='closed'] {
+    animation: sumir 150ms ease-in;
+  }
+  .animate-destaque {
+    animation: none;
+    background-color: var(--color-verde-suave);
+  }
+}
+
+/* Faixa de agenda: o dia de trabalho (09h–18h) desenhado como uma régua. */
+.faixa-agenda {
+  --faixa-fundo: var(--color-agenda-suave);
+  --faixa-tinta: var(--color-agenda);
+  --faixa-tique: var(--color-agenda-tinta);
+}
+
+/* Esconde a barra de rolagem sem desligar a rolagem (listas horizontais no mobile). */
+.rolagem-discreta {
+  scrollbar-width: none;
+}
+.rolagem-discreta::-webkit-scrollbar {
+  display: none;
+}
