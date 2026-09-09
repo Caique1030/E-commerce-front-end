@@ -1,18 +1,18 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-interface VazioProps {
-  titulo: string;
-  descricao?: string;
-  acao?: ReactNode;
-  ilustracao?: 'carrinho' | 'busca' | 'pedidos' | 'nenhuma';
+interface EmptyStateProps {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  illustration?: 'cart' | 'search' | 'orders' | 'none';
   className?: string;
-  compacto?: boolean;
+  compact?: boolean;
 }
 
 /* Ilustrações em linha, desenhadas com a mesma régua da faixa de agenda: leves, sem cor de preenchimento. */
-const ilustracoes = {
-  carrinho: (
+const illustrations = {
+  cart: (
     <svg
       viewBox="0 0 96 64"
       className="h-16 w-24"
@@ -27,7 +27,7 @@ const ilustracoes = {
       <path d="M36 30h26M40 22h18" strokeLinecap="round" strokeDasharray="2 3" />
     </svg>
   ),
-  busca: (
+  search: (
     <svg
       viewBox="0 0 96 64"
       className="h-16 w-24"
@@ -41,7 +41,7 @@ const ilustracoes = {
       <path d="M34 28h16M42 20v16" strokeLinecap="round" strokeDasharray="2 3" />
     </svg>
   ),
-  pedidos: (
+  orders: (
     <svg
       viewBox="0 0 96 64"
       className="h-16 w-24"
@@ -54,32 +54,32 @@ const ilustracoes = {
       <path d="M36 22h24M36 30h24M36 38h14" strokeLinecap="round" strokeDasharray="2 3" />
     </svg>
   ),
-  nenhuma: null,
+  none: null,
 };
 
 /** Tela vazia é convite para agir: frase de direção + uma ação, sem lamentar. */
-export function Vazio({
-  titulo,
-  descricao,
-  acao,
-  ilustracao = 'nenhuma',
+export function EmptyState({
+  title,
+  description,
+  action,
+  illustration = 'none',
   className,
-  compacto = false,
-}: VazioProps) {
+  compact = false,
+}: EmptyStateProps) {
   return (
     <div
       className={cn(
         'flex flex-col items-center justify-center text-center',
-        compacto ? 'gap-2 px-4 py-8' : 'gap-3 px-6 py-16',
+        compact ? 'gap-2 px-4 py-8' : 'gap-3 px-6 py-16',
         className,
       )}
     >
-      {ilustracoes[ilustracao] && (
-        <div className="text-suave/70 mb-1">{ilustracoes[ilustracao]}</div>
+      {illustrations[illustration] && (
+        <div className="text-suave/70 mb-1">{illustrations[illustration]}</div>
       )}
-      <p className="text-h2 text-tinta">{titulo}</p>
-      {descricao && <p className="text-corpo text-suave max-w-md">{descricao}</p>}
-      {acao && <div className="mt-2 flex flex-wrap justify-center gap-2">{acao}</div>}
+      <p className="text-h2 text-tinta">{title}</p>
+      {description && <p className="text-corpo text-suave max-w-md">{description}</p>}
+      {action && <div className="mt-2 flex flex-wrap justify-center gap-2">{action}</div>}
     </div>
   );
 }

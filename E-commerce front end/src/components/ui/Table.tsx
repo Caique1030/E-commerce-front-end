@@ -2,7 +2,7 @@ import type { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 /** Tabela densa para o admin. O contêiner rola horizontalmente; a página nunca. */
-export function Tabela({ className, children, ...props }: HTMLAttributes<HTMLTableElement>) {
+export function Table({ className, children, ...props }: HTMLAttributes<HTMLTableElement>) {
   return (
     <div className="rounded-card border-borda bg-branco shadow-card overflow-x-auto border">
       <table

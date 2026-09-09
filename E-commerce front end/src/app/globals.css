@@ -264,10 +264,20 @@
     opacity: 0;
   }
 }
-.drawer-overlay[data-state='open'] {
+/* O fundo escurecido é o ::backdrop do <dialog> nativo; anima junto com o painel. */
+.modal-painel::backdrop,
+.drawer-painel::backdrop,
+.drawer-painel-esquerda::backdrop {
+  background-color: rgb(31 31 31 / 0.45);
+}
+.modal-painel[data-state='open']::backdrop,
+.drawer-painel[data-state='open']::backdrop,
+.drawer-painel-esquerda[data-state='open']::backdrop {
   animation: surgir 180ms ease-out;
 }
-.drawer-overlay[data-state='closed'] {
+.modal-painel[data-state='closed']::backdrop,
+.drawer-painel[data-state='closed']::backdrop,
+.drawer-painel-esquerda[data-state='closed']::backdrop {
   animation: sumir 150ms ease-in;
 }
 .drawer-painel[data-state='open'] {

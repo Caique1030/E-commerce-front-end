@@ -1,21 +1,21 @@
 import { centavosParaBRL, partesPreco } from '@/lib/formatadores';
 import { cn } from '@/lib/utils';
 
-export type VariantePreco = 'principal' | 'card' | 'linha' | 'apoio';
+export type PriceVariant = 'main' | 'card' | 'line' | 'muted';
 
-const variantes: Record<VariantePreco, string> = {
-  principal: 'text-preco',
+const variants: Record<PriceVariant, string> = {
+  main: 'text-preco',
   card: 'text-preco-md',
-  linha: 'text-preco-sm',
-  apoio: 'text-apoio text-suave',
+  line: 'text-preco-sm',
+  muted: 'text-apoio text-suave',
 };
 
-interface PrecoProps {
+interface PriceProps {
   centavos: number;
-  variante?: VariantePreco;
+  variant?: PriceVariant;
   className?: string;
   /** Preço antigo riscado (quando o valor mudou desde que entrou no carrinho). */
-  anteriorCentavos?: number;
+  previousCentavos?: number;
 }
 
 /**
@@ -23,15 +23,15 @@ interface PrecoProps {
  * O número visível é decorativo para o leitor de tela — ele ouve o valor inteiro de uma vez,
  * e não "erre cifrão, mil duzentos e noventa e nove, zero zero".
  */
-export function Preco({ centavos, variante = 'card', className, anteriorCentavos }: PrecoProps) {
+export function Price({ centavos, variant = 'card', className, previousCentavos }: PriceProps) {
   const { moeda, inteiro, centavos: fracao } = partesPreco(centavos);
-  const miudo = variante === 'apoio';
+  const small = variant === 'muted';
 
   return (
     <span className={cn('preco inline-flex flex-wrap items-baseline gap-x-2', className)}>
-      <span className={cn('inline-flex items-start', variantes[variante])}>
+      <span className={cn('inline-flex items-start', variants[variant])}>
         <span className="sr-only">{centavosParaBRL(centavos)}</span>
-        {miudo ? (
+        {small ? (
           <span aria-hidden>{centavosParaBRL(centavos)}</span>
         ) : (
           <>
@@ -45,12 +45,12 @@ export function Preco({ centavos, variante = 'card', className, anteriorCentavos
           </>
         )}
       </span>
-      {anteriorCentavos !== undefined && anteriorCentavos !== centavos && (
+      {previousCentavos !== undefined && previousCentavos !== centavos && (
         <s
           className="text-apoio text-suave"
-          aria-label={`antes ${centavosParaBRL(anteriorCentavos)}`}
+          aria-label={`antes ${centavosParaBRL(previousCentavos)}`}
         >
-          {centavosParaBRL(anteriorCentavos)}
+          {centavosParaBRL(previousCentavos)}
         </s>
       )}
     </span>
