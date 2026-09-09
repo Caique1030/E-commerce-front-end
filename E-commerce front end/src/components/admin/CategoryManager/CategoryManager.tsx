@@ -4,12 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowDown, ArrowUp, Plus } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { Erro } from '@/components/estados/erro';
-import { EsqueletoArvore } from '@/components/estados/skeletons';
-import { Badge } from '@/components/ui/badge';
-import { Botao } from '@/components/ui/botao';
-import { Campo, Input, Selecao } from '@/components/ui/campo';
-import { DialogRaiz, ModalConteudo } from '@/components/ui/dialog';
+import { ErrorState } from '@/components/estados/ErrorState';
+import { CategoryTreeSkeleton } from '@/components/estados/Skeletons';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Field, Input, NativeSelect } from '@/components/ui/Field';
+import { Modal } from '@/components/ui/Dialog';
 import { achatarCategorias } from '@/lib/api/categorias';
 import { ehApiError, mensagemDeErro } from '@/lib/api/cliente';
 import {
@@ -20,87 +20,89 @@ import {
 } from '@/lib/hooks/use-categorias';
 import { formularioCategoriaSchema, type FormularioCategoria } from '@/lib/schemas/categoria';
 import type { Categoria } from '@/lib/tipos';
-import { cn, gerarSlug } from '@/lib/utils';
+import { gerarSlug } from '@/lib/utils';
 import { notificar } from '@/stores/ui-store';
+import * as S from './style';
 
-type Modal =
+type ModalState =
   | { modo: 'criar'; parentId: string | null }
   | { modo: 'editar'; categoria: Categoria }
   | { modo: 'excluir'; categoria: Categoria }
   | null;
 
 /** Árvore com criar, renomear, reordenar, desativar e excluir. Só ADMIN escreve (o back garante). */
-export function GerenciarCategorias() {
+export function CategoryManager() {
   const arvore = useArvoreCategorias(true);
-  const [modal, setModal] = useState<Modal>(null);
+  const [modal, setModal] = useState<ModalState>(null);
 
-  if (arvore.isPending) return <EsqueletoArvore />;
+  if (arvore.isPending) return <CategoryTreeSkeleton />;
   if (arvore.isError) {
     return (
-      <Erro
-        erro={arvore.error}
-        titulo="Não foi possível carregar as categorias."
-        aoTentarDeNovo={() => void arvore.refetch()}
-        tentandoDeNovo={arvore.isFetching}
+      <ErrorState
+        error={arvore.error}
+        title="Não foi possível carregar as categorias."
+        onRetry={() => void arvore.refetch()}
+        retrying={arvore.isFetching}
       />
     );
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Botao
-          icone={<Plus className="size-4" aria-hidden />}
+    <S.Root>
+      <S.Toolbar>
+        <Button
+          icon={<Plus size={16} aria-hidden />}
           onClick={() => setModal({ modo: 'criar', parentId: null })}
         >
           Nova categoria
-        </Botao>
-      </div>
+        </Button>
+      </S.Toolbar>
 
-      <ul className="flex flex-col gap-2" aria-label="Árvore de categorias">
+      <S.Tree aria-label="Árvore de categorias">
         {arvore.data.map((raiz, i) => (
-          <NoCategoria
+          <CategoryNode
             key={raiz.id}
             categoria={raiz}
             irmaos={arvore.data}
             indice={i}
-            abrirModal={setModal}
+            onOpenModal={setModal}
           />
         ))}
-      </ul>
+      </S.Tree>
 
-      <DialogRaiz open={!!modal} onOpenChange={(aberto) => !aberto && setModal(null)}>
+      <>
         {modal?.modo === 'criar' && (
-          <ModalCategoria
+          <CategoryModal
             parentId={modal.parentId}
             todas={arvore.data}
-            aoFechar={() => setModal(null)}
+            onClose={() => setModal(null)}
           />
         )}
         {modal?.modo === 'editar' && (
-          <ModalCategoria
+          <CategoryModal
             categoria={modal.categoria}
             todas={arvore.data}
-            aoFechar={() => setModal(null)}
+            onClose={() => setModal(null)}
           />
         )}
         {modal?.modo === 'excluir' && (
-          <ModalExcluir categoria={modal.categoria} aoFechar={() => setModal(null)} />
+          <DeleteModal categoria={modal.categoria} onClose={() => setModal(null)} />
         )}
-      </DialogRaiz>
-    </div>
+      </>
+    </S.Root>
   );
 }
 
-interface NoProps {
+interface CategoryNodeProps {
   categoria: Categoria;
   irmaos: Categoria[];
   indice: number;
-  abrirModal: (m: Modal) => void;
+  onOpenModal: (m: ModalState) => void;
 }
 
-function NoCategoria({ categoria, irmaos, indice, abrirModal }: NoProps) {
+function CategoryNode({ categoria, irmaos, indice, onOpenModal }: CategoryNodeProps) {
   const atualizar = useAtualizarCategoria();
+  const nested = categoria.nivel > 0;
 
   /** Reordena trocando de posição com o vizinho e regravando `ordem` como o índice de cada irmão. */
   async function mover(direcao: -1 | 1) {
@@ -144,117 +146,81 @@ function NoCategoria({ categoria, irmaos, indice, abrirModal }: NoProps) {
     );
   }
 
-  const botao =
-    'rounded-campo px-2 py-1 text-apoio font-medium text-suave hover:bg-papel-2 hover:text-tinta disabled:opacity-40';
-
   return (
-    <li
-      className={cn(
-        'rounded-card border-borda bg-branco shadow-card border',
-        categoria.nivel > 0 && 'border-0 border-l bg-transparent',
-      )}
-    >
-      <div
-        className={cn(
-          'flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2',
-          categoria.nivel > 0 && 'pl-4',
-        )}
-      >
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          <span
-            className={cn(
-              'truncate',
-              categoria.nivel === 0 ? 'text-corpo font-medium' : 'text-corpo',
-            )}
-          >
-            {categoria.nome}
-          </span>
-          <span className="preco text-micro text-suave truncate">/{categoria.slug}</span>
-          {!categoria.ativo && <Badge variante="alerta">Inativa</Badge>}
-        </div>
-        <div
-          className="flex items-center gap-0.5"
-          role="group"
-          aria-label={`Ações para ${categoria.nome}`}
-        >
-          <button
+    <S.Node $nested={nested}>
+      <S.NodeRow $nested={nested}>
+        <S.NodeInfo>
+          <S.NodeName $root={!nested}>{categoria.nome}</S.NodeName>
+          <S.NodeSlug>/{categoria.slug}</S.NodeSlug>
+          {!categoria.ativo && <Badge variant="danger">Inativa</Badge>}
+        </S.NodeInfo>
+        <S.NodeActions role="group" aria-label={`Ações para ${categoria.nome}`}>
+          <S.ActionButton
             type="button"
             onClick={() => void mover(-1)}
             disabled={indice === 0 || atualizar.isPending}
-            className={botao}
             aria-label={`Subir ${categoria.nome}`}
           >
-            <ArrowUp className="size-4" aria-hidden />
-          </button>
-          <button
+            <ArrowUp size={16} aria-hidden />
+          </S.ActionButton>
+          <S.ActionButton
             type="button"
             onClick={() => void mover(1)}
             disabled={indice === irmaos.length - 1 || atualizar.isPending}
-            className={botao}
             aria-label={`Descer ${categoria.nome}`}
           >
-            <ArrowDown className="size-4" aria-hidden />
-          </button>
-          {categoria.nivel === 0 && (
-            <button
+            <ArrowDown size={16} aria-hidden />
+          </S.ActionButton>
+          {!nested && (
+            <S.ActionButton
               type="button"
-              onClick={() => abrirModal({ modo: 'criar', parentId: categoria.id })}
-              className={botao}
+              onClick={() => onOpenModal({ modo: 'criar', parentId: categoria.id })}
             >
               Subcategoria
-            </button>
+            </S.ActionButton>
           )}
-          <button
-            type="button"
-            onClick={() => abrirModal({ modo: 'editar', categoria })}
-            className={botao}
-          >
+          <S.ActionButton type="button" onClick={() => onOpenModal({ modo: 'editar', categoria })}>
             Editar
-          </button>
-          <button
-            type="button"
-            onClick={alternarAtivo}
-            disabled={atualizar.isPending}
-            className={botao}
-          >
+          </S.ActionButton>
+          <S.ActionButton type="button" onClick={alternarAtivo} disabled={atualizar.isPending}>
             {categoria.ativo ? 'Desativar' : 'Ativar'}
-          </button>
-          <button
+          </S.ActionButton>
+          <S.ActionButton
             type="button"
-            onClick={() => abrirModal({ modo: 'excluir', categoria })}
-            className={cn(botao, 'hover:text-alerta')}
+            onClick={() => onOpenModal({ modo: 'excluir', categoria })}
+            $danger
           >
             Excluir
-          </button>
-        </div>
-      </div>
+          </S.ActionButton>
+        </S.NodeActions>
+      </S.NodeRow>
       {categoria.filhos.length > 0 && (
-        <ul className="border-borda ml-4 flex flex-col border-l pb-2">
+        <S.Subtree>
           {categoria.filhos.map((f, i) => (
-            <NoCategoria
+            <CategoryNode
               key={f.id}
               categoria={f}
               irmaos={categoria.filhos}
               indice={i}
-              abrirModal={abrirModal}
+              onOpenModal={onOpenModal}
             />
           ))}
-        </ul>
+        </S.Subtree>
       )}
-    </li>
+    </S.Node>
   );
 }
 
-function ModalCategoria({
+function CategoryModal({
   categoria,
   parentId,
   todas,
-  aoFechar,
+  onClose,
 }: {
   categoria?: Categoria;
   parentId?: string | null;
   todas: Categoria[];
-  aoFechar: () => void;
+  onClose: () => void;
 }) {
   const criar = useCriarCategoria();
   const atualizar = useAtualizarCategoria();
@@ -287,7 +253,7 @@ function ModalCategoria({
       } else {
         await criar.mutateAsync(payload);
       }
-      aoFechar();
+      onClose();
     } catch (erro) {
       if (ehApiError(erro, 'SLUG_JA_EXISTE') || ehApiError(erro, 'REGISTRO_DUPLICADO')) {
         form.setError('slug', { message: 'já existe uma categoria com este slug' });
@@ -305,90 +271,87 @@ function ModalCategoria({
   const erros = form.formState.errors;
 
   return (
-    <ModalConteudo
-      titulo={editando ? `Editar ${categoria.nome}` : 'Nova categoria'}
-      descricao="Mover uma categoria recalcula o caminho de toda a subárvore."
-      rodape={
+    <Modal
+      open
+      onOpenChange={(aberto) => !aberto && onClose()}
+      title={editando ? `Editar ${categoria.nome}` : 'Nova categoria'}
+      description="Mover uma categoria recalcula o caminho de toda a subárvore."
+      footer={
         <>
-          <Botao variante="secundario" onClick={aoFechar} disabled={enviando}>
+          <Button variant="secondary" onClick={onClose} disabled={enviando}>
             Cancelar
-          </Botao>
-          <Botao form="form-categoria" type="submit" carregando={enviando}>
+          </Button>
+          <Button form="form-categoria" type="submit" loading={enviando}>
             {editando ? 'Salvar' : 'Criar'}
-          </Botao>
+          </Button>
         </>
       }
     >
-      <form
-        id="form-categoria"
-        onSubmit={form.handleSubmit(aoEnviar)}
-        noValidate
-        className="flex flex-col gap-4"
-      >
-        <Campo rotulo="Nome" erro={erros.nome?.message} obrigatorio>
+      <S.ModalForm id="form-categoria" onSubmit={form.handleSubmit(aoEnviar)} noValidate>
+        <Field label="Nome" error={erros.nome?.message} required>
           {(a11y) => <Input {...a11y} {...form.register('nome')} disabled={enviando} />}
-        </Campo>
-        <Campo
-          rotulo="Slug"
-          erro={erros.slug?.message}
-          dica="Aparece na URL: /categoria/slug"
-          obrigatorio
+        </Field>
+        <Field
+          label="Slug"
+          error={erros.slug?.message}
+          hint="Aparece na URL: /categoria/slug"
+          required
         >
           {(a11y) => (
             <Input {...a11y} {...form.register('slug')} className="preco" disabled={enviando} />
           )}
-        </Campo>
-        <Campo rotulo="Categoria pai" erro={erros.parentId?.message} dica="Vazio = categoria raiz.">
+        </Field>
+        <Field label="Categoria pai" error={erros.parentId?.message} hint="Vazio = categoria raiz.">
           {(a11y) => (
-            <Selecao {...a11y} {...form.register('parentId')} disabled={enviando}>
+            <NativeSelect {...a11y} {...form.register('parentId')} disabled={enviando}>
               <option value="">Nenhuma (raiz)</option>
               {raizes.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.nome}
                 </option>
               ))}
-            </Selecao>
+            </NativeSelect>
           )}
-        </Campo>
-      </form>
-    </ModalConteudo>
+        </Field>
+      </S.ModalForm>
+    </Modal>
   );
 }
 
-function ModalExcluir({ categoria, aoFechar }: { categoria: Categoria; aoFechar: () => void }) {
+function DeleteModal({ categoria, onClose }: { categoria: Categoria; onClose: () => void }) {
   const remover = useRemoverCategoria();
   const temFilhos = categoria.filhos.length > 0;
   const total = achatarCategorias([categoria]).length - 1;
   return (
-    <ModalConteudo
-      titulo={`Excluir ${categoria.nome}?`}
-      descricao="Só é possível excluir categorias sem subcategorias e sem produtos. Para tirar da loja sem excluir, use Desativar."
-      rodape={
+    <Modal
+      open
+      onOpenChange={(aberto) => !aberto && onClose()}
+      title={`Excluir ${categoria.nome}?`}
+      description="Só é possível excluir categorias sem subcategorias e sem produtos. Para tirar da loja sem excluir, use Desativar."
+      footer={
         <>
-          <Botao variante="secundario" onClick={aoFechar}>
+          <Button variant="secondary" onClick={onClose}>
             Manter
-          </Botao>
-          <Botao
-            variante="perigo"
-            carregando={remover.isPending}
+          </Button>
+          <Button
+            variant="danger"
+            loading={remover.isPending}
             disabled={temFilhos}
-            onClick={() => remover.mutate(categoria.id, { onSuccess: aoFechar })}
+            onClick={() => remover.mutate(categoria.id, { onSuccess: onClose })}
           >
             Excluir
-          </Botao>
+          </Button>
         </>
       }
     >
       {temFilhos ? (
-        <p className="text-corpo text-suave">
+        <S.ModalText>
           Esta categoria tem {total} {total === 1 ? 'subcategoria' : 'subcategorias'}. Exclua ou
           mova as subcategorias primeiro.
-        </p>
+        </S.ModalText>
       ) : (
-        <p className="text-corpo text-suave">
-          Se houver produtos nela, a API recusa a exclusão e nada muda.
-        </p>
+        <S.ModalText>Se houver produtos nela, a API recusa a exclusão e nada muda.</S.ModalText>
       )}
-    </ModalConteudo>
+    </Modal>
   );
 }
