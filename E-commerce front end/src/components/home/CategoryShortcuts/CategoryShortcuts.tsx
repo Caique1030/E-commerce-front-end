@@ -18,10 +18,9 @@ import {
   Watch,
   type LucideIcon,
 } from 'lucide-react';
-import Link from 'next/link';
-import { Esqueleto } from '@/components/ui/esqueleto';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { useArvoreCategorias } from '@/lib/hooks/use-categorias';
-import { cn } from '@/lib/utils';
+import * as S from './style';
 
 /**
  * Ícone por categoria. A busca é por pedaço do slug ou do nome, porque o catálogo vem do
@@ -57,56 +56,41 @@ function iconeDaCategoria(slug: string, nome: string): LucideIcon {
  * Primeira parada da home: as categorias raiz como botões redondos, do jeito que o cliente
  * espera achar num marketplace. Rola de lado no celular, cabe inteiro no desktop.
  */
-export function AtalhosCategorias({ className }: { className?: string }) {
+export function CategoryShortcuts({ className }: { className?: string }) {
   const { data, isPending } = useArvoreCategorias();
 
   if (isPending) {
     return (
-      <div className={cn('painel flex gap-6 overflow-hidden px-4 py-5', className)} aria-hidden>
+      <S.SkeletonRoot className={className} aria-hidden>
         {Array.from({ length: 8 }, (_, i) => (
-          <div key={i} className="flex shrink-0 flex-col items-center gap-2">
-            <Esqueleto className="size-14 rounded-full" />
-            <Esqueleto className="h-3 w-14" />
-          </div>
+          <S.SkeletonItem key={i}>
+            <Skeleton className="size-14 rounded-full" />
+            <Skeleton className="h-3 w-14" />
+          </S.SkeletonItem>
         ))}
-      </div>
+      </S.SkeletonRoot>
     );
   }
   if (!data || data.length === 0) return null;
 
   return (
-    <nav
-      aria-label="Categorias em destaque"
-      className={cn('painel overflow-hidden px-2 py-4', className)}
-    >
-      <ul className="rolagem-discreta flex gap-1 overflow-x-auto px-2 sm:justify-between">
+    <S.Root aria-label="Categorias em destaque" className={className}>
+      <S.List>
         {data.slice(0, 10).map((c) => {
           const Icone = iconeDaCategoria(c.slug, c.nome);
           const ehServico = c.slug === 'servicos';
           return (
-            <li key={c.id} className="shrink-0">
-              <Link
-                href={`/categoria/${c.slug}`}
-                className="group hover:bg-papel-2 flex w-[5.5rem] flex-col items-center gap-2 rounded-lg px-1 py-2 text-center"
-              >
-                <span
-                  className={cn(
-                    'flex size-14 items-center justify-center rounded-full transition-colors',
-                    ehServico
-                      ? 'bg-agenda-suave text-agenda group-hover:bg-agenda group-hover:text-branco'
-                      : 'bg-papel-2 text-tinta-2 group-hover:bg-acao group-hover:text-branco',
-                  )}
-                >
-                  <Icone className="size-6" strokeWidth={1.75} aria-hidden />
-                </span>
-                <span className="text-micro text-tinta-2 line-clamp-2 leading-tight font-semibold">
-                  {c.nome}
-                </span>
-              </Link>
-            </li>
+            <S.Item key={c.id}>
+              <S.Card href={`/categoria/${c.slug}`}>
+                <S.IconCircle $schedule={ehServico}>
+                  <Icone size={24} strokeWidth={1.75} aria-hidden />
+                </S.IconCircle>
+                <S.Label>{c.nome}</S.Label>
+              </S.Card>
+            </S.Item>
           );
         })}
-      </ul>
-    </nav>
+      </S.List>
+    </S.Root>
   );
 }

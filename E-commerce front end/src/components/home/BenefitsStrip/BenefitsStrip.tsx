@@ -1,7 +1,7 @@
 import { CalendarDays, CreditCard, ShieldCheck, Truck } from 'lucide-react';
 import { FRETE_GRATIS_MINIMO_CENTAVOS, MAX_PARCELAS } from '@/lib/comercial';
 import { centavosParaBRL } from '@/lib/formatadores';
-import { cn } from '@/lib/utils';
+import * as S from './style';
 
 const beneficios = [
   {
@@ -27,22 +27,22 @@ const beneficios = [
 ];
 
 /** As quatro promessas da loja, ditas uma vez, no lugar em que o cliente decide comprar. */
-export function FaixaBeneficios({ className }: { className?: string }) {
+export function BenefitsStrip({ className }: { className?: string }) {
   return (
-    <section aria-label="O que a loja garante" className={cn('painel px-4 py-5', className)}>
-      <ul className="grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4">
+    <S.Root aria-label="O que a loja garante" className={className}>
+      <S.List>
         {beneficios.map(({ icone: Icone, titulo, texto }) => (
-          <li key={titulo} className="flex items-start gap-3">
-            <span className="bg-acao-suave text-acao flex size-10 shrink-0 items-center justify-center rounded-full">
-              <Icone className="size-5" strokeWidth={1.75} aria-hidden />
-            </span>
-            <div className="min-w-0">
-              <p className="text-corpo font-semibold">{titulo}</p>
-              <p className="text-apoio text-suave mt-0.5">{texto}</p>
-            </div>
-          </li>
+          <S.Item key={titulo}>
+            <S.IconCircle>
+              <Icone size={20} strokeWidth={1.75} aria-hidden />
+            </S.IconCircle>
+            <S.Body>
+              <S.Title>{titulo}</S.Title>
+              <S.Text>{texto}</S.Text>
+            </S.Body>
+          </S.Item>
         ))}
-      </ul>
-    </section>
+      </S.List>
+    </S.Root>
   );
 }
