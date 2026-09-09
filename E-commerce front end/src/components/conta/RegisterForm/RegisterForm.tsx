@@ -1,12 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Botao } from '@/components/ui/botao';
-import { Campo, Input } from '@/components/ui/campo';
+import { Button } from '@/components/ui/Button';
+import { Field, Input } from '@/components/ui/Field';
 import { ehApiError, mensagemDeErro } from '@/lib/api/cliente';
 import {
   formularioCadastroSchema,
@@ -15,9 +14,10 @@ import {
 } from '@/lib/schemas/auth';
 import { destinoSeguro } from '@/lib/utils';
 import { useSessao } from '@/providers/sessao-provider';
+import * as S from './style';
 
 /** Cadastro. A confirmação de senha existe só na tela; o payload é exatamente o registerSchema do back. */
-export function FormularioCadastro() {
+export function RegisterForm() {
   const { status, criarConta } = useSessao();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -58,37 +58,22 @@ export function FormularioCadastro() {
   const entrarHref = voltar !== '/' ? `/entrar?voltar=${encodeURIComponent(voltar)}` : '/entrar';
 
   return (
-    <div className="flex flex-col gap-5">
+    <S.Root>
       <div>
-        <h1 className="text-h1">Criar conta</h1>
-        <p className="text-corpo text-suave mt-1">
-          Já tem conta?{' '}
-          <Link href={entrarHref} className="text-acao underline-offset-4 hover:underline">
-            Entre
-          </Link>
-          .
-        </p>
+        <S.Title>Criar conta</S.Title>
+        <S.Lead>
+          Já tem conta? <S.LeadLink href={entrarHref}>Entre</S.LeadLink>.
+        </S.Lead>
       </div>
 
-      <form
-        onSubmit={form.handleSubmit(aoEnviar)}
-        noValidate
-        className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5"
-      >
-        {erro && (
-          <p
-            role="alert"
-            className="rounded-campo bg-alerta-suave text-apoio text-alerta px-3 py-2"
-          >
-            {erro}
-          </p>
-        )}
-        <Campo rotulo="Nome completo" erro={erros.nome?.message} obrigatorio>
+      <S.Form onSubmit={form.handleSubmit(aoEnviar)} noValidate>
+        {erro && <S.Alert role="alert">{erro}</S.Alert>}
+        <Field label="Nome completo" error={erros.nome?.message} required>
           {(a11y) => (
             <Input {...a11y} {...form.register('nome')} autoComplete="name" disabled={enviando} />
           )}
-        </Campo>
-        <Campo rotulo="E-mail" erro={erros.email?.message} obrigatorio>
+        </Field>
+        <Field label="E-mail" error={erros.email?.message} required>
           {(a11y) => (
             <Input
               {...a11y}
@@ -99,12 +84,12 @@ export function FormularioCadastro() {
               disabled={enviando}
             />
           )}
-        </Campo>
-        <Campo
-          rotulo="Senha"
-          erro={erros.senha?.message}
-          dica="Ao menos 8 caracteres, com letra e número."
-          obrigatorio
+        </Field>
+        <Field
+          label="Senha"
+          error={erros.senha?.message}
+          hint="Ao menos 8 caracteres, com letra e número."
+          required
         >
           {(a11y) => (
             <Input
@@ -115,8 +100,8 @@ export function FormularioCadastro() {
               disabled={enviando}
             />
           )}
-        </Campo>
-        <Campo rotulo="Confirmar senha" erro={erros.confirmarSenha?.message} obrigatorio>
+        </Field>
+        <Field label="Confirmar senha" error={erros.confirmarSenha?.message} required>
           {(a11y) => (
             <Input
               {...a11y}
@@ -126,11 +111,11 @@ export function FormularioCadastro() {
               disabled={enviando}
             />
           )}
-        </Campo>
-        <Botao type="submit" tamanho="lg" carregando={enviando} className="mt-1">
+        </Field>
+        <Button type="submit" size="lg" loading={enviando} className="mt-1">
           {enviando ? 'Criando conta…' : 'Criar conta'}
-        </Botao>
-      </form>
-    </div>
+        </Button>
+      </S.Form>
+    </S.Root>
   );
 }
