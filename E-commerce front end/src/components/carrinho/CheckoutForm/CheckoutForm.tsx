@@ -3,12 +3,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Botao } from '@/components/ui/botao';
-import { Campo, Input } from '@/components/ui/campo';
+import { Button } from '@/components/ui/Button';
+import { Field, Input } from '@/components/ui/Field';
 import { mesmoInstante } from '@/lib/agenda';
 import { carrinhoApi } from '@/lib/api/carrinho';
 import { ehApiError, mensagemDeErro } from '@/lib/api/cliente';
@@ -22,8 +21,9 @@ import type { Carrinho, ProblemaItem } from '@/lib/tipos';
 import { gerarChaveIdempotencia } from '@/lib/utils';
 import { useSessao } from '@/providers/sessao-provider';
 import { notificar } from '@/stores/ui-store';
-import { LinhaItem } from './linha-item';
-import { ResumoValores } from './resumo-valores';
+import { CartLine } from '../CartLine/CartLine';
+import { OrderSummary } from '../OrderSummary/OrderSummary';
+import * as S from './style';
 
 const semAcao = () => undefined;
 
@@ -32,7 +32,7 @@ const semAcao = () => undefined;
  * nasce do carrinho e o nome vem da conta. Por isso o nome editável aqui vai para
  * PATCH /usuarios/me antes de finalizar, e é o que entra no snapshot do pedido e no e-mail.
  */
-export function FormularioCheckout({ carrinho }: { carrinho: Carrinho }) {
+export function CheckoutForm({ carrinho }: { carrinho: Carrinho }) {
   const { usuario } = useSessao();
   const router = useRouter();
   const qc = useQueryClient();
@@ -121,93 +121,72 @@ export function FormularioCheckout({ carrinho }: { carrinho: Carrinho }) {
   const mailpit = process.env.NEXT_PUBLIC_MAILPIT_URL;
 
   return (
-    <form
-      onSubmit={form.handleSubmit(aoEnviar)}
-      noValidate
-      className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-10"
-    >
-      <section aria-labelledby="titulo-checkout" className="flex flex-col gap-4">
-        <h1 id="titulo-checkout" className="text-h1">
-          Finalizar compra
-        </h1>
+    <S.Root onSubmit={form.handleSubmit(aoEnviar)} noValidate>
+      <S.Items aria-labelledby="titulo-checkout">
+        <S.Title id="titulo-checkout">Finalizar compra</S.Title>
 
         {problemas && (
-          <div
-            role="alert"
-            className="rounded-card border-alerta/30 bg-alerta-suave flex flex-col gap-3 border p-4"
-          >
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="text-alerta mt-0.5 size-5 shrink-0" aria-hidden />
+          <S.ProblemPanel role="alert">
+            <S.ProblemHeader>
+              <S.ProblemIcon>
+                <AlertTriangle size={20} aria-hidden />
+              </S.ProblemIcon>
               <div>
-                <p className="text-corpo text-tinta font-medium">
-                  Alguns itens mudaram desde que você os adicionou.
-                </p>
-                <p className="text-apoio text-suave">
+                <S.ProblemTitle>Alguns itens mudaram desde que você os adicionou.</S.ProblemTitle>
+                <S.ProblemText>
                   O carrinho é uma foto, não uma reserva: o estoque é confirmado só ao finalizar.
-                </p>
+                </S.ProblemText>
               </div>
-            </div>
-            <ul className="text-corpo flex flex-col gap-1 pl-7">
+            </S.ProblemHeader>
+            <S.ProblemList>
               {problemas.map((p, i) => (
                 <li key={`${p.produtoId}-${i}`}>
-                  <span className="font-medium">{p.nome ?? 'Item'}</span>: {descreverProblema(p)}.
+                  <S.ProblemName>{p.nome ?? 'Item'}</S.ProblemName>: {descreverProblema(p)}.
                 </li>
               ))}
               {problemas.length === 0 && <li>Um ou mais itens ficaram indisponíveis.</li>}
-            </ul>
-            <div className="pl-7">
-              <Botao
-                variante="secundario"
+            </S.ProblemList>
+            <S.ProblemAction>
+              <Button
+                variant="secondary"
                 onClick={() => void corrigirCarrinho()}
-                carregando={corrigindo}
+                loading={corrigindo}
               >
                 Atualizar carrinho e continuar
-              </Botao>
-            </div>
-          </div>
+              </Button>
+            </S.ProblemAction>
+          </S.ProblemPanel>
         )}
 
         {temIndisponivel && !problemas && (
-          <p
-            className="rounded-card border-alerta/25 bg-alerta-suave text-apoio text-alerta border px-4 py-3"
-            role="status"
-          >
+          <S.UnavailableNotice role="status">
             Um item saiu de venda.{' '}
-            <Link href="/carrinho" className="font-medium underline underline-offset-4">
-              Remova-o no carrinho
-            </Link>{' '}
-            para continuar.
-          </p>
+            <S.NoticeLink href="/carrinho">Remova-o no carrinho</S.NoticeLink> para continuar.
+          </S.UnavailableNotice>
         )}
 
-        <ul
-          className="divide-borda rounded-card border-borda bg-branco shadow-card divide-y border px-5"
-          aria-label="Itens da compra"
-        >
+        <S.ItemList aria-label="Itens da compra">
           {carrinho.itens.map((item) => (
-            <LinhaItem
+            <CartLine
               key={item.id}
               item={item}
-              somenteLeitura
-              aoAlterarQuantidade={semAcao}
-              aoRemover={semAcao}
+              readOnly
+              onQuantityChange={semAcao}
+              onRemove={semAcao}
             />
           ))}
-        </ul>
-        <p className="text-apoio text-suave">
+        </S.ItemList>
+        <S.Hint>
           Precisa mudar alguma quantidade?{' '}
-          <Link href="/carrinho" className="hover:text-tinta underline underline-offset-4">
-            Volte ao carrinho
-          </Link>
-          .
-        </p>
-      </section>
+          <S.HintLink href="/carrinho">Volte ao carrinho</S.HintLink>.
+        </S.Hint>
+      </S.Items>
 
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-5 border p-5">
-          <fieldset className="flex flex-col gap-4">
-            <legend className="text-h2">Dados do comprador</legend>
-            <Campo rotulo="Nome completo" erro={form.formState.errors.nome?.message} obrigatorio>
+      <S.Summary>
+        <S.SummaryCard>
+          <S.Buyer>
+            <S.Legend>Dados do comprador</S.Legend>
+            <Field label="Nome completo" error={form.formState.errors.nome?.message} required>
               {(a11y) => (
                 <Input
                   {...a11y}
@@ -216,60 +195,48 @@ export function FormularioCheckout({ carrinho }: { carrinho: Carrinho }) {
                   disabled={enviando}
                 />
               )}
-            </Campo>
-            <div className="flex flex-col gap-1">
-              <p className="text-apoio font-medium">E-mail</p>
-              <p className="text-corpo">{usuario?.email}</p>
-              <p className="text-apoio text-suave">A confirmação da compra vai para este e-mail.</p>
-            </div>
-          </fieldset>
+            </Field>
+            <S.EmailBlock>
+              <S.EmailLabel>E-mail</S.EmailLabel>
+              <S.EmailValue>{usuario?.email}</S.EmailValue>
+              <S.Hint>A confirmação da compra vai para este e-mail.</S.Hint>
+            </S.EmailBlock>
+          </S.Buyer>
 
-          <div className="border-borda border-t pt-4">
-            <ResumoValores
+          <S.Totals>
+            <OrderSummary
               subtotalCentavos={carrinho.subtotalCentavos}
               totalItens={carrinho.totalItens}
             />
-          </div>
+          </S.Totals>
 
-          {erroGeral && (
-            <p
-              role="alert"
-              className="rounded-campo bg-alerta-suave text-apoio text-alerta px-3 py-2"
-            >
-              {erroGeral}
-            </p>
-          )}
+          {erroGeral && <S.GeneralError role="alert">{erroGeral}</S.GeneralError>}
 
-          <Botao
+          <Button
             type="submit"
-            tamanho="lg"
+            size="lg"
             disabled={bloqueado}
-            carregando={enviando}
+            loading={enviando}
             aria-describedby="nota-checkout"
           >
             {enviando ? 'Finalizando…' : 'Finalizar compra'}
-          </Botao>
-          <p id="nota-checkout" className="text-apoio text-suave">
+          </Button>
+          <S.Note id="nota-checkout">
             Ao finalizar, o estoque e os horários são confirmados e o pedido fica aguardando
             pagamento.
             {mailpit && (
               <>
                 {' '}
                 Nesta demonstração, os e-mails caem na{' '}
-                <a
-                  href={mailpit}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-tinta underline underline-offset-4"
-                >
+                <S.ExternalLink href={mailpit} target="_blank" rel="noreferrer">
                   caixa local
-                </a>
+                </S.ExternalLink>
                 .
               </>
             )}
-          </p>
-        </div>
-      </aside>
-    </form>
+          </S.Note>
+        </S.SummaryCard>
+      </S.Summary>
+    </S.Root>
   );
 }

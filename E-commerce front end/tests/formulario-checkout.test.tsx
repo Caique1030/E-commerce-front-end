@@ -5,7 +5,7 @@ import { delay, http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import type { ReactNode } from 'react';
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { FormularioCheckout } from '@/components/carrinho/formulario-checkout';
+import { CheckoutForm } from '@/components/carrinho/CheckoutForm/CheckoutForm';
 import type { Carrinho, Usuario } from '@/lib/tipos';
 
 const API = 'http://localhost:3000/api/v1';
@@ -101,7 +101,7 @@ function Envoltorio({ children }: { children: ReactNode }) {
   return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
 }
 
-describe('FormularioCheckout', () => {
+describe('CheckoutForm', () => {
   it('desabilita o botão durante o envio, manda a chave de idempotência e vai para a confirmação', async () => {
     const chaves: string[] = [];
     servidor.use(
@@ -112,7 +112,7 @@ describe('FormularioCheckout', () => {
       }),
     );
 
-    render(<FormularioCheckout carrinho={carrinho} />, { wrapper: Envoltorio });
+    render(<CheckoutForm carrinho={carrinho} />, { wrapper: Envoltorio });
 
     const botao = screen.getByRole('button', { name: 'Finalizar compra' });
     expect(botao).toBeEnabled();
@@ -154,7 +154,7 @@ describe('FormularioCheckout', () => {
       ),
     );
 
-    render(<FormularioCheckout carrinho={carrinho} />, { wrapper: Envoltorio });
+    render(<CheckoutForm carrinho={carrinho} />, { wrapper: Envoltorio });
     await userEvent.click(screen.getByRole('button', { name: 'Finalizar compra' }));
 
     const painel = await screen.findByRole('alert');
@@ -178,7 +178,7 @@ describe('FormularioCheckout', () => {
       }),
     );
 
-    render(<FormularioCheckout carrinho={carrinho} />, { wrapper: Envoltorio });
+    render(<CheckoutForm carrinho={carrinho} />, { wrapper: Envoltorio });
     const nome = screen.getByRole('textbox', { name: /nome completo/i });
     await userEvent.clear(nome);
     await userEvent.type(nome, 'Maria Silva');
