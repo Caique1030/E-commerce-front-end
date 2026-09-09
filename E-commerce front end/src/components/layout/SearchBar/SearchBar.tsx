@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useRef, useState, type FormEvent } from 'react';
 import { useChamadaComAtraso } from '@/lib/hooks/use-debounce';
 import { filtrosParaQuery, lerFiltrosCatalogo } from '@/lib/schemas/catalogo';
-import { cn } from '@/lib/utils';
+import * as S from './style';
 
 const ATRASO_MS = 400;
 
@@ -17,7 +17,7 @@ function ehPaginaDeCatalogo(pathname: string): boolean {
  * Busca do cabeçalho. No catálogo, digitar atualiza a URL com 400ms de atraso; em qualquer
  * outra página, Enter leva para a home já filtrada.
  */
-export function Busca({ className }: { className?: string }) {
+export function SearchBar({ className }: { className?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -62,18 +62,9 @@ export function Busca({ className }: { className?: string }) {
   }
 
   return (
-    <form
-      role="search"
-      onSubmit={aoEnviar}
-      className={cn(
-        'rounded-campo bg-branco shadow-card focus-within:ring-acao/40 flex h-10 items-center focus-within:ring-2',
-        className,
-      )}
-    >
-      <label htmlFor="busca-loja" className="sr-only">
-        Buscar produtos e serviços
-      </label>
-      <input
+    <S.Root role="search" onSubmit={aoEnviar} className={className}>
+      <S.Label htmlFor="busca-loja">Buscar produtos e serviços</S.Label>
+      <S.Input
         ref={inputRef}
         id="busca-loja"
         type="search"
@@ -81,25 +72,15 @@ export function Busca({ className }: { className?: string }) {
         value={valor}
         onChange={(e) => aoDigitar(e.target.value)}
         placeholder="Buscar produtos, marcas e serviços"
-        className="text-corpo text-tinta placeholder:text-suave h-full min-w-0 flex-1 bg-transparent pr-2 pl-4 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
       />
       {valor && (
-        <button
-          type="button"
-          onClick={limpar}
-          className="rounded-campo text-suave hover:bg-papel-2 hover:text-tinta mr-1 p-1"
-          aria-label="Limpar busca"
-        >
-          <X className="size-4" aria-hidden />
-        </button>
+        <S.ClearButton type="button" onClick={limpar} aria-label="Limpar busca">
+          <X size={16} aria-hidden />
+        </S.ClearButton>
       )}
-      <button
-        type="submit"
-        className="border-borda text-suave hover:text-acao flex h-6 w-11 items-center justify-center border-l"
-        aria-label="Buscar"
-      >
-        <Search className="size-[18px]" aria-hidden strokeWidth={2} />
-      </button>
-    </form>
+      <S.SubmitButton type="submit" aria-label="Buscar">
+        <Search size={18} aria-hidden strokeWidth={2} />
+      </S.SubmitButton>
+    </S.Root>
   );
 }

@@ -1,9 +1,9 @@
 import { CalendarDays, CreditCard, ShieldCheck, Truck } from 'lucide-react';
-import Link from 'next/link';
-import { Logo } from '@/components/ui/logo';
+import { Logo } from '@/components/ui/Logo';
 import { FRETE_GRATIS_MINIMO_CENTAVOS, MAX_PARCELAS } from '@/lib/comercial';
 import { centavosParaBRL, NOME_FUSO } from '@/lib/formatadores';
 import { NOME_LOJA } from '@/lib/constantes';
+import * as S from './style';
 
 const colunas = [
   {
@@ -36,58 +36,58 @@ const promessas = [
   { icone: ShieldCheck, texto: 'Status do pedido registrado a cada mudança' },
 ];
 
-export function Rodape() {
+export function Footer() {
   const mailpit = process.env.NEXT_PUBLIC_MAILPIT_URL;
   return (
-    <footer className="bg-branco mt-6">
-      <div className="border-borda conteudo border-b py-6">
-        <ul className="text-apoio text-tinta-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <S.Root>
+      <S.Promises>
+        <S.PromiseList>
           {promessas.map(({ icone: Icone, texto }) => (
-            <li key={texto} className="flex items-center gap-2.5">
-              <Icone className="text-acao size-5 shrink-0" strokeWidth={1.75} aria-hidden />
+            <S.PromiseItem key={texto}>
+              <S.PromiseIcon>
+                <Icone size={20} strokeWidth={1.75} aria-hidden />
+              </S.PromiseIcon>
               {texto}
-            </li>
+            </S.PromiseItem>
           ))}
-        </ul>
-      </div>
+        </S.PromiseList>
+      </S.Promises>
 
-      <div className="conteudo grid gap-8 py-8 md:grid-cols-[minmax(0,1fr)_auto_auto]">
-        <div className="flex flex-col gap-3">
+      <S.Columns>
+        <S.Brand>
           <Logo />
-          <p className="text-apoio text-suave max-w-xs">
+          <S.BrandText>
             Loja de demonstração de um desafio técnico. Preços em reais; horários de serviço no{' '}
             {NOME_FUSO}.
-          </p>
-        </div>
+          </S.BrandText>
+        </S.Brand>
         {colunas.map((c) => (
-          <nav key={c.titulo} aria-label={c.titulo} className="flex flex-col gap-2">
-            <p className="text-micro text-suave font-bold tracking-wide uppercase">{c.titulo}</p>
+          <S.Column key={c.titulo} aria-label={c.titulo}>
+            <S.ColumnTitle>{c.titulo}</S.ColumnTitle>
             {c.links.map((l) => (
-              <Link key={l.href + l.rotulo} href={l.href} className="text-apoio hover:text-acao">
+              <S.ColumnLink key={l.href + l.rotulo} href={l.href}>
                 {l.rotulo}
-              </Link>
+              </S.ColumnLink>
             ))}
-          </nav>
+          </S.Column>
         ))}
-      </div>
+      </S.Columns>
 
-      <div className="bg-papel-2">
-        <div className="conteudo text-micro text-suave flex flex-wrap items-center justify-between gap-2 py-4">
+      <S.Bottom>
+        <S.BottomContent>
           <p>
             © {new Date().getFullYear()} {NOME_LOJA}. Projeto de demonstração, sem venda real.
           </p>
-          <div className="flex gap-4">
-            <Link href="/admin" className="hover:text-acao">
-              Área administrativa
-            </Link>
+          <S.BottomLinks>
+            <S.BottomLink href="/admin">Área administrativa</S.BottomLink>
             {mailpit && (
-              <a href={mailpit} target="_blank" rel="noreferrer" className="hover:text-acao">
+              <S.ExternalLink href={mailpit} target="_blank" rel="noreferrer">
                 Caixa de e-mails (Mailpit)
-              </a>
+              </S.ExternalLink>
             )}
-          </div>
-        </div>
-      </div>
-    </footer>
+          </S.BottomLinks>
+        </S.BottomContent>
+      </S.Bottom>
+    </S.Root>
   );
 }

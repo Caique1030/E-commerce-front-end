@@ -2,19 +2,19 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
-import { SemPermissao } from '@/components/estados/sem-permissao';
+import { NoPermission } from '@/components/estados/NoPermission';
 import { useSessao } from '@/providers/sessao-provider';
 
-type Exigencia = 'autenticado' | 'cliente' | 'equipe' | 'admin';
+type Requirement = 'autenticado' | 'cliente' | 'equipe' | 'admin';
 
-interface GuardaProps {
-  exige?: Exigencia;
+interface SessionGuardProps {
+  require?: Requirement;
   /** Mostrado enquanto a sessão carrega (e durante o redirecionamento de anônimos). */
-  esqueleto: ReactNode;
+  fallback: ReactNode;
   children: ReactNode;
 }
 
-const descricaoExigencia: Record<Exclude<Exigencia, 'autenticado'>, string> = {
+const descricaoExigencia: Record<Exclude<Requirement, 'autenticado'>, string> = {
   cliente: 'para clientes da loja',
   equipe: 'da equipe da loja',
   admin: 'só para administradores',
@@ -25,7 +25,11 @@ const descricaoExigencia: Record<Exclude<Exigencia, 'autenticado'>, string> = {
  * Aqui a sessão já está resolvida: anônimo vai para /entrar; papel errado vê o que a conta pode fazer.
  * Lembrete: isto é UX. A autorização real acontece no back-end a cada requisição.
  */
-export function GuardaSessao({ exige = 'autenticado', esqueleto, children }: GuardaProps) {
+export function SessionGuard({
+  require: exige = 'autenticado',
+  fallback,
+  children,
+}: SessionGuardProps) {
   const { status, usuario, ehCliente, ehEquipe, ehAdmin } = useSessao();
   const router = useRouter();
   const pathname = usePathname();
@@ -38,7 +42,7 @@ export function GuardaSessao({ exige = 'autenticado', esqueleto, children }: Gua
     router.replace(`/entrar?voltar=${encodeURIComponent(voltar)}`);
   }, [status, pathname, router]);
 
-  if (status !== 'autenticado' || !usuario) return <>{esqueleto}</>;
+  if (status !== 'autenticado' || !usuario) return <>{fallback}</>;
 
   const permitido =
     exige === 'autenticado' ||
@@ -48,9 +52,9 @@ export function GuardaSessao({ exige = 'autenticado', esqueleto, children }: Gua
 
   if (!permitido) {
     return (
-      <SemPermissao
-        papel={usuario.role}
-        exige={descricaoExigencia[exige as Exclude<Exigencia, 'autenticado'>]}
+      <NoPermission
+        role={usuario.role}
+        requirement={descricaoExigencia[exige as Exclude<Requirement, 'autenticado'>]}
       />
     );
   }
