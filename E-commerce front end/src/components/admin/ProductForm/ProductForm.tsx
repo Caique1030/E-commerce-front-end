@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { Botao } from '@/components/ui/botao';
-import { Caixa, Campo, Input, Selecao, Textarea } from '@/components/ui/campo';
-import { DialogRaiz, ModalConteudo } from '@/components/ui/dialog';
-import { ImagemProduto } from '@/components/ui/imagem-produto';
+import { Button } from '@/components/ui/Button';
+import { Checkbox, Field, Input, NativeSelect, Textarea } from '@/components/ui/Field';
+import { Modal } from '@/components/ui/Dialog';
+import { ProductImage } from '@/components/ui/ProductImage';
 import { achatarCategorias } from '@/lib/api/categorias';
 import { ehApiError, mensagemDeErro } from '@/lib/api/cliente';
 import { brlParaCentavos, centavosParaBRL } from '@/lib/formatadores';
@@ -23,11 +23,25 @@ import {
 } from '@/lib/schemas/produto';
 import type { ProblemaValidacao, Produto } from '@/lib/tipos';
 import { notificar } from '@/stores/ui-store';
+import * as S from './style';
 
-interface FormularioProdutoProps {
+export interface ProductFormProps {
   /** Ausente = criação. */
   produto?: Produto;
 }
+
+const TIPOS = [
+  {
+    valor: 'SIMPLE',
+    rotulo: 'Produto físico',
+    descricao: 'Tem estoque; o cliente adiciona ao carrinho.',
+  },
+  {
+    valor: 'BOOKING',
+    rotulo: 'Serviço agendado',
+    descricao: 'Tem duração e capacidade; o cliente escolhe data e horário.',
+  },
+] as const;
 
 function valoresIniciais(p?: Produto): FormularioProdutoEntrada {
   return {
@@ -51,7 +65,7 @@ function valoresIniciais(p?: Produto): FormularioProdutoEntrada {
  * (watch + superRefine). Preço aceita "R$ 1.299,90" e vira centavos inteiros antes de enviar;
  * o payload final ainda passa pelo createProductSchema, o mesmo do back.
  */
-export function FormularioProduto({ produto }: FormularioProdutoProps) {
+export function ProductForm({ produto }: ProductFormProps) {
   const router = useRouter();
   const editando = !!produto;
   const criar = useCriarProduto();
@@ -156,75 +170,58 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
   }
 
   return (
-    <form
-      onSubmit={form.handleSubmit(aoEnviar)}
-      noValidate
-      className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]"
-    >
-      <div className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-5 border p-5">
-        <fieldset className="flex flex-col gap-4">
-          <legend className="text-h2 mb-1">Tipo</legend>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {(
-              [
-                {
-                  valor: 'SIMPLE',
-                  rotulo: 'Produto físico',
-                  descricao: 'Tem estoque; o cliente adiciona ao carrinho.',
-                },
-                {
-                  valor: 'BOOKING',
-                  rotulo: 'Serviço agendado',
-                  descricao: 'Tem duração e capacidade; o cliente escolhe data e horário.',
-                },
-              ] as const
-            ).map((o) => (
-              <label
+    <S.Root onSubmit={form.handleSubmit(aoEnviar)} noValidate>
+      <S.Card>
+        <S.StackFieldset>
+          <S.Legend>Tipo</S.Legend>
+          <S.TypeOptions>
+            {TIPOS.map((o) => (
+              <S.TypeOption
                 key={o.valor}
-                className={`rounded-card flex cursor-pointer items-start gap-3 border p-3 ${tipo === o.valor ? (o.valor === 'BOOKING' ? 'border-agenda bg-agenda-suave/50' : 'border-acao bg-acao-suave/50') : 'border-borda hover:border-borda-forte'}`}
+                $selected={tipo === o.valor}
+                $booking={o.valor === 'BOOKING'}
               >
-                <input
+                <S.TypeRadio
                   type="radio"
                   value={o.valor}
                   {...form.register('tipo')}
-                  className="accent-acao mt-1"
                   disabled={enviando}
                 />
                 <span>
-                  <span className="text-corpo block font-medium">{o.rotulo}</span>
-                  <span className="text-apoio text-suave block">{o.descricao}</span>
+                  <S.TypeLabel>{o.rotulo}</S.TypeLabel>
+                  <S.TypeDescription>{o.descricao}</S.TypeDescription>
                 </span>
-              </label>
+              </S.TypeOption>
             ))}
-          </div>
-        </fieldset>
+          </S.TypeOptions>
+        </S.StackFieldset>
 
-        <fieldset className="grid gap-4 sm:grid-cols-2">
-          <legend className="text-h2 mb-1">Identificação</legend>
-          <Campo rotulo="Nome" erro={erros.nome?.message} obrigatorio className="sm:col-span-2">
+        <S.GridFieldset>
+          <S.Legend>Identificação</S.Legend>
+          <Field label="Nome" error={erros.nome?.message} required className="sm:col-span-2">
             {(a11y) => <Input {...a11y} {...form.register('nome')} disabled={enviando} />}
-          </Campo>
-          <Campo
-            rotulo="SKU"
-            erro={erros.sku?.message}
-            dica="Letras, números, ponto, hífen ou underscore."
-            obrigatorio
+          </Field>
+          <Field
+            label="SKU"
+            error={erros.sku?.message}
+            hint="Letras, números, ponto, hífen ou underscore."
+            required
           >
             {(a11y) => (
               <Input {...a11y} {...form.register('sku')} className="preco" disabled={enviando} />
             )}
-          </Campo>
-          <Campo rotulo="Marca" erro={erros.marca?.message}>
+          </Field>
+          <Field label="Marca" error={erros.marca?.message}>
             {(a11y) => <Input {...a11y} {...form.register('marca')} disabled={enviando} />}
-          </Campo>
-          <Campo
-            rotulo="Categoria"
-            erro={erros.categoriaId?.message}
-            obrigatorio
+          </Field>
+          <Field
+            label="Categoria"
+            error={erros.categoriaId?.message}
+            required
             className="sm:col-span-2"
           >
             {(a11y) => (
-              <Selecao
+              <NativeSelect
                 {...a11y}
                 {...form.register('categoriaId')}
                 disabled={enviando || arvore.isPending}
@@ -234,34 +231,29 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
                 </option>
                 {categorias.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {'  '.repeat(c.nivel)}
+                    {'  '.repeat(c.nivel)}
                     {c.nome}
                     {c.ativo ? '' : ' (inativa)'}
                   </option>
                 ))}
-              </Selecao>
+              </NativeSelect>
             )}
-          </Campo>
-          <Campo
-            rotulo="Descrição"
-            erro={erros.descricao?.message}
-            obrigatorio
+          </Field>
+          <Field
+            label="Descrição"
+            error={erros.descricao?.message}
+            required
             className="sm:col-span-2"
           >
             {(a11y) => (
               <Textarea {...a11y} {...form.register('descricao')} rows={5} disabled={enviando} />
             )}
-          </Campo>
-        </fieldset>
+          </Field>
+        </S.GridFieldset>
 
-        <fieldset className="grid gap-4 sm:grid-cols-2">
-          <legend className="text-h2 mb-1">Preço e disponibilidade</legend>
-          <Campo
-            rotulo="Preço"
-            erro={erros.preco?.message}
-            dica="Em reais, ex.: 1.299,90"
-            obrigatorio
-          >
+        <S.GridFieldset>
+          <S.Legend>Preço e disponibilidade</S.Legend>
+          <Field label="Preço" error={erros.preco?.message} hint="Em reais, ex.: 1.299,90" required>
             {(a11y) => (
               <Input
                 {...a11y}
@@ -271,14 +263,14 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
                 disabled={enviando}
               />
             )}
-          </Campo>
+          </Field>
           {booking ? (
             <>
-              <Campo
-                rotulo="Duração (minutos)"
-                erro={erros.duracaoMin?.message}
-                dica="Entre 5 e 1440. Define os horários do dia."
-                obrigatorio
+              <Field
+                label="Duração (minutos)"
+                error={erros.duracaoMin?.message}
+                hint="Entre 5 e 1440. Define os horários do dia."
+                required
               >
                 {(a11y) => (
                   <Input
@@ -292,12 +284,12 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
                     disabled={enviando}
                   />
                 )}
-              </Campo>
-              <Campo
-                rotulo="Capacidade por horário"
-                erro={erros.capacidadeSlot?.message}
-                dica="Quantos atendimentos cabem no mesmo horário."
-                obrigatorio
+              </Field>
+              <Field
+                label="Capacidade por horário"
+                error={erros.capacidadeSlot?.message}
+                hint="Quantos atendimentos cabem no mesmo horário."
+                required
               >
                 {(a11y) => (
                   <Input
@@ -310,10 +302,10 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
                     disabled={enviando}
                   />
                 )}
-              </Campo>
+              </Field>
             </>
           ) : (
-            <Campo rotulo="Estoque" erro={erros.estoque?.message} obrigatorio>
+            <Field label="Estoque" error={erros.estoque?.message} required>
               {(a11y) => (
                 <Input
                   {...a11y}
@@ -325,16 +317,16 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
                   disabled={enviando}
                 />
               )}
-            </Campo>
+            </Field>
           )}
-        </fieldset>
+        </S.GridFieldset>
 
-        <fieldset className="flex flex-col gap-4">
-          <legend className="text-h2 mb-1">Imagem</legend>
-          <Campo
-            rotulo="URL da imagem"
-            erro={erros.imagemUrl?.message}
-            dica="Só https://cdn.dummyjson.com é otimizado pelo Next; outros hosts precisam entrar em next.config.ts."
+        <S.StackFieldset>
+          <S.Legend>Imagem</S.Legend>
+          <Field
+            label="URL da imagem"
+            error={erros.imagemUrl?.message}
+            hint="Só https://cdn.dummyjson.com é otimizado pelo Next; outros hosts precisam entrar em next.config.ts."
           >
             {(a11y) => (
               <Input
@@ -345,17 +337,21 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
                 disabled={enviando}
               />
             )}
-          </Campo>
-        </fieldset>
+          </Field>
+        </S.StackFieldset>
 
         {!editando && (
-          <Caixa rotulo="Ativo (visível na loja)" {...form.register('ativo')} disabled={enviando} />
+          <Checkbox
+            label="Ativo (visível na loja)"
+            {...form.register('ativo')}
+            disabled={enviando}
+          />
         )}
-      </div>
+      </S.Card>
 
-      <aside className="flex flex-col gap-4 lg:sticky lg:top-6 lg:self-start">
-        <div className="rounded-card border-borda bg-branco shadow-card overflow-hidden border">
-          <ImagemProduto
+      <S.Sidebar>
+        <S.PreviewCard>
+          <ProductImage
             src={
               typeof imagemUrl === 'string' && imagemUrl.startsWith('https://cdn.dummyjson.com/')
                 ? imagemUrl
@@ -367,76 +363,76 @@ export function FormularioProduto({ produto }: FormularioProdutoProps) {
             capacidadeSlot={booking ? Number(capacidadeDigitada) || null : null}
             sizes="320px"
           />
-          <p className="text-micro text-suave px-3 py-2">
+          <S.PreviewCaption>
             {booking
               ? 'Serviços sem foto mostram a faixa de agenda.'
               : 'Pré-visualização da imagem do catálogo.'}
-          </p>
-        </div>
+          </S.PreviewCaption>
+        </S.PreviewCard>
 
-        <div className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-2 border p-4">
-          <Botao type="submit" tamanho="lg" carregando={enviando}>
+        <S.ActionsCard>
+          <Button type="submit" size="lg" loading={enviando}>
             {editando ? 'Salvar alterações' : 'Cadastrar produto'}
-          </Botao>
-          <Botao
+          </Button>
+          <Button
             type="button"
-            variante="fantasma"
+            variant="ghost"
             onClick={() => router.push('/admin/produtos')}
             disabled={enviando}
           >
             Voltar para a lista
-          </Botao>
+          </Button>
           {editando && produto && (
-            <div className="border-borda mt-2 flex flex-col gap-2 border-t pt-3">
-              <Botao
+            <S.DangerZone>
+              <Button
                 type="button"
-                variante="secundario"
+                variant="secondary"
                 onClick={() => void alternarAtivo()}
                 disabled={enviando}
               >
                 {produto.ativo ? 'Desativar produto' : 'Reativar produto'}
-              </Botao>
-              <DialogRaiz open={confirmandoRemocao} onOpenChange={setConfirmandoRemocao}>
-                <Botao
-                  type="button"
-                  variante="perigo"
-                  onClick={() => setConfirmandoRemocao(true)}
-                  disabled={enviando}
-                >
-                  Remover produto
-                </Botao>
-                <ModalConteudo
-                  titulo="Remover este produto?"
-                  descricao="Ele sai do catálogo e do carrinho dos clientes. Pedidos antigos continuam com o histórico intacto (remoção lógica)."
-                  rodape={
-                    <>
-                      <Botao variante="secundario" onClick={() => setConfirmandoRemocao(false)}>
-                        Manter
-                      </Botao>
-                      <Botao
-                        variante="perigo"
-                        carregando={remover.isPending}
-                        onClick={() =>
-                          remover.mutate(produto.id, {
-                            onSuccess: () => router.push('/admin/produtos'),
-                          })
-                        }
-                      >
-                        Remover
-                      </Botao>
-                    </>
-                  }
-                >
-                  <p className="text-corpo">
-                    <span className="font-medium">{produto.nome}</span>{' '}
-                    <span className="preco text-suave">({produto.sku})</span>
-                  </p>
-                </ModalConteudo>
-              </DialogRaiz>
-            </div>
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                onClick={() => setConfirmandoRemocao(true)}
+                disabled={enviando}
+              >
+                Remover produto
+              </Button>
+              <Modal
+                open={confirmandoRemocao}
+                onOpenChange={setConfirmandoRemocao}
+                title="Remover este produto?"
+                description="Ele sai do catálogo e do carrinho dos clientes. Pedidos antigos continuam com o histórico intacto (remoção lógica)."
+                footer={
+                  <>
+                    <Button variant="secondary" onClick={() => setConfirmandoRemocao(false)}>
+                      Manter
+                    </Button>
+                    <Button
+                      variant="danger"
+                      loading={remover.isPending}
+                      onClick={() =>
+                        remover.mutate(produto.id, {
+                          onSuccess: () => router.push('/admin/produtos'),
+                        })
+                      }
+                    >
+                      Remover
+                    </Button>
+                  </>
+                }
+              >
+                <S.ConfirmText>
+                  <S.ConfirmName>{produto.nome}</S.ConfirmName>{' '}
+                  <S.ConfirmSku>({produto.sku})</S.ConfirmSku>
+                </S.ConfirmText>
+              </Modal>
+            </S.DangerZone>
           )}
-        </div>
-      </aside>
-    </form>
+        </S.ActionsCard>
+      </S.Sidebar>
+    </S.Root>
   );
 }
