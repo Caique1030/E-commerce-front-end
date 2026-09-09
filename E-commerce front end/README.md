@@ -4,7 +4,7 @@ Front-end do desafio técnico de e-commerce. **Balcão** é um marketplace que v
 
 Consome a API NestJS do repositório do back-end (`E-commerce back end`), que precisa estar no ar em `http://localhost:3000`.
 
-**Stack:** Next.js 16 (App Router) · React 19 · TypeScript strict · Tailwind CSS 4 · TanStack Query 5 · React Hook Form 7 · Zod 4 · Zustand 5 · Radix UI · Vitest + Testing Library + MSW · Playwright
+**Stack:** Next.js 16 (App Router) · React 19 · TypeScript strict · Tailwind CSS 4 + styled-components 6 · TanStack Query 5 · React Hook Form 7 · Zod 4 · Zustand 5 · Vitest + Testing Library + MSW · Playwright
 
 ---
 
@@ -32,12 +32,12 @@ Consome a API NestJS do repositório do back-end (`E-commerce back end`), que pr
 |---|---|---|
 | Framework | **Next.js 16.3** (App Router, Turbopack) | Citado no desafio. Server Components renderizam catálogo e detalhe com dados; a interatividade fica em ilhas `'use client'`. A 16 é a versão estável no momento da entrega: `middleware.ts` virou `proxy.ts`, `params`/`cookies()` são assíncronos e há os helpers globais `PageProps`/`LayoutProps`. |
 | Linguagem | **TypeScript strict** | Contrato tipado ponta a ponta; `src/lib/tipos.ts` espelha os DTOs de saída do back. Nenhum `any`. |
-| Estilo | **Tailwind CSS 4** | Citado no desafio. Na versão 4 os tokens ficam no CSS (`@theme` em `globals.css`), não em `tailwind.config.ts`. A paleta padrão foi removida: só existem as cores do sistema de design. |
+| Estilo | **Tailwind CSS 4** + **styled-components 6** | Tailwind citado no desafio: os tokens ficam no CSS (`@theme` em `globals.css`, paleta padrão removida) e ele veste os primitivos pequenos (`components/ui`, `components/estados`). Cada tela e cada componente de domínio tem `Nome.tsx` + `style.tsx` em styled-components, lendo os mesmos tokens via `var(--…)` — os layouts são escritos à mão, não só compostos com utilitários. |
 | Dados de servidor | **TanStack Query 5** | Citado no desafio. Cache, invalidação, `placeholderData` para paginar sem piscar e atualização otimista do carrinho. Prefetch no servidor + `HydrationBoundary`. |
 | Formulários | **React Hook Form 7** | Citado no desafio. Uncontrolled = menos re-render; `useWatch` para campos condicionais (compatível com o React Compiler). |
 | Validação | **Zod 4** | Citado no desafio. Os mesmos schemas do back (ver [6](#6-decisões-técnicas)). Locale `pt` para as mensagens padrão. |
 | Estado de UI | **Zustand 5** | Só o que é puramente visual: drawer aberto, item destacado, menu mobile, toasts. |
-| Componentes | **Radix UI** (dialog, select, dropdown, collapsible, slot) | Trap de foco, `Esc`, ARIA e navegação por teclado resolvidos. |
+| Componentes | **Primitivos próprios** (`<dialog>` nativo, menu com `role="menu"`, `<select>` nativo) | Sem biblioteca de UI. Trap de foco, `Esc`, fundo inerte e retorno do foco vêm do navegador; teclado e ARIA do menu são escritos à mão e cobertos por testes. |
 | Ícones | Lucide | Consistente e leve. |
 | Datas | date-fns 4 (calendário) + `Intl` (fuso) | O back guarda UTC e a agenda é em `America/Sao_Paulo`. Toda formatação de horário passa por `Intl` com o fuso explícito, independentemente de onde o navegador está. |
 | Testes | Vitest 5 + Testing Library + MSW 2 + Playwright | Unidade, componente (com API mockada) e um fluxo E2E contra o back real. |
@@ -118,7 +118,11 @@ Vale testar também:
 
 **Estado de servidor no TanStack Query; estado de UI no Zustand.** Carrinho, produtos, pedidos, categorias e dashboard vivem no Query, com todas as chaves centralizadas em `src/lib/query-keys.ts`. O Zustand guarda só o que é visual (drawer, toasts, menu mobile). Misturar os dois é o erro mais comum, e aqui a fronteira é explícita.
 
-**Schemas Zod compartilhados com o back.** `src/lib/schemas/` espelha `src/modules/*/dto/*.dto.ts` do back-end: `loginSchema`, `registerSchema`, `nomeSchema`/`emailSchema`/`senhaSchema`, `updateMeSchema`, `createProductSchema` (com o mesmo `errosCamposBooking` e `superRefine`), `updateProductSchema`, `createCategorySchema`, `changeOrderStatusSchema`, `listProductsQuerySchema`. As regras **e as mensagens** são idênticas; a única diferença é que as classes `createZodDto` do Nest não existem aqui e os enums TS viraram `z.enum`. A interface capitaliza a primeira letra da mensagem ao exibir (`capitalizarMensagem`), então o texto de origem continua o mesmo. Os formulários têm schemas derivados (ex.: confirmação de senha, preço digitado como "R$ 1.299,90"), mas o payload final passa pelo schema compartilhado antes de sair. Em um monorepo isso seria um pacote `@loja/schemas`; sem monorepo, os arquivos foram mantidos idênticos linha a linha onde possível.
+**Duas camadas de estilo: Tailwind nos primitivos, styled-components nas telas.** O Tailwind continua dono dos tokens (`@theme` em `globals.css`) e dos primitivos pequenos de `components/ui` e `components/estados` (botão, campo, badge, esqueleto, diálogo, menu, tabela…). Cada tela em `src/views/<Nome>` e cada componente de domínio (`components/produto/ProductCard`, `components/layout/StoreHeader`…) vive numa pasta com `Nome.tsx` + `style.tsx`, e o `page.tsx` do Next fica fino: metadata, `params`, prefetch, `notFound()` e `return <Nome />`. Não há duas fontes de verdade: `src/styles/tokens.ts` só aponta para as custom properties do `@theme` (`color.acao` é literalmente `var(--color-acao)`), o mixin `text('apoio')` expande a mesma escala tipográfica do utilitário `text-apoio`, e `tests/design-tokens.test.ts` falha se um token nascer de um lado só. As classes globais (`.conteudo`, `.painel`, `.trilho`, `.preco`) são reusadas via `attrs`, nunca reescritas, e um styled-component nunca embrulha um primitivo Tailwind (`styled(Button)` é proibido). No servidor, um `StyledComponentsRegistry` (`useServerInsertedHTML`) injeta o CSS no `<head>` antes do HTML que o usa; as rotas estáticas continuam estáticas.
+
+**Sem biblioteca de componentes.** Modal e drawer usam o `<dialog>` nativo: `showModal()` traz trap de foco, `Esc`, fundo inerte e retorno do foco a quem abriu; a animação de saída roda antes do `close()` (o componente espera o `animationend`, com um tempo de segurança). O menu da conta é um `role="menu"` próprio com setas, Home/End, Esc, clique fora e Tab; a ordenação do catálogo é um `<select>` nativo com a aparência dos campos; a árvore de categorias usa `aria-expanded`/`aria-controls`; e o botão troca o `asChild` por `as={Link}`, tipado.
+
+**Schemas Zod compartilhados com o back.** `src/lib/schemas/` espelha `src/modules/*/dto/*.dto.ts` do back-end: `loginSchema`, `registerSchema`, `nomeSchema`/`emailSchema`/`senhaSchema`, `updateMeSchema`, `createProductSchema` (com o mesmo `errosCamposBooking` e `superRefine`), `updateProductSchema`, `createCategorySchema`, `changeOrderStatusSchema`, `listProductsQuerySchema`. As regras **e as mensagens** são idênticas; a única diferença é que as classes `createZodDto` do Nest não existem aqui e os enums TS viraram `z.enum`. A interface capitaliza a primeira letra da mensagem ao exibir (`capitalizeMessage`), então o texto de origem continua o mesmo. Os formulários têm schemas derivados (ex.: confirmação de senha, preço digitado como "R$ 1.299,90"), mas o payload final passa pelo schema compartilhado antes de sair. Em um monorepo isso seria um pacote `@loja/schemas`; sem monorepo, os arquivos foram mantidos idênticos linha a linha onde possível.
 
 **Autenticação: BFF com cookie httpOnly.** O back devolve `accessToken` (15 min) e `refreshToken` (rotativo, 7 dias). Guardar os dois em `localStorage` é vulnerável a XSS. Aqui:
 
@@ -173,7 +177,7 @@ A loja vende duas coisas que exigem ações diferentes: um produto você **compr
 ## 8. Acessibilidade
 
 - Foco visível em todos os interativos (`:focus-visible` global, verde, 2 px de offset).
-- Drawer, modais e menus com trap de foco, `Esc` e retorno do foco (Radix). Menu mobile e filtros abrem em `dialog`.
+- Drawer, modais e menus com trap de foco, `Esc` e retorno do foco (`<dialog>` nativo e menu próprio). Menu mobile e filtros abrem em `dialog`.
 - `aria-live="polite"` no total do carrinho, no contador de resultados do catálogo, na escolha de data/horário e nos toasts.
 - Botões de quantidade com rótulo explícito: "Aumentar quantidade de Fone Bluetooth XZ"; "Diminuir quantidade de … para zero" quando o próximo passo é remover.
 - Contraste mínimo 4,5:1 em texto (ver a nota sobre `--suave`).
@@ -199,14 +203,18 @@ Na primeira vez: `npx playwright install chromium`.
 3. Agenda: minutos no fuso, posição na faixa, slots por dia, dia útil, data passada, manhã/tarde.
 4. Schemas: login e cadastro (regras do back, campo extra rejeitado), checkout, formulário de produto → payload → `createProductSchema`, filtros da URL tolerantes a valor inválido.
 
+5. Tokens: `src/styles/tokens.ts` e o `@theme` de `globals.css` têm exatamente os mesmos nomes (cores, escala tipográfica, raios, sombras, animações).
+
 **Componente** (`tests/*.test.tsx`, Testing Library + MSW)
-5. `CardProduto` renderiza "Adicionar" para SIMPLE e "Escolher data" para BOOKING; esgotado desabilita.
-6. `LinhaItem`: quantidade zero (botão ou campo) dispara remoção; avisos de preço alterado e item fora de venda.
-7. `FormularioCheckout` com API mockada: botão desabilitado e `aria-busy` durante o envio, `Idempotency-Key` enviada uma vez mesmo com dois cliques, redirecionamento para a confirmação; 409 abre o painel com o motivo por item; nome alterado vai para `PATCH /usuarios/me` antes do pedido.
+6. `ProductCard` renderiza "Adicionar" para SIMPLE e "Escolher data" para BOOKING; esgotado desabilita.
+7. `CartLine`: quantidade zero (botão ou campo) dispara remoção; avisos de preço alterado e item fora de venda.
+8. `CheckoutForm` com API mockada: botão desabilitado e `aria-busy` durante o envio, `Idempotency-Key` enviada uma vez mesmo com dois cliques, redirecionamento para a confirmação; 409 abre o painel com o motivo por item; nome alterado vai para `PATCH /usuarios/me` antes do pedido.
+9. `Modal`/`Drawer` (`<dialog>` nativo): `role="dialog"` nomeado pelo título e ligado à descrição; Fechar, `Esc` (evento `cancel`) e clique no fundo pedem para fechar sem fechar sozinhos; o conteúdo só sai depois da animação.
+10. `Menu`: abre focando o primeiro item, setas com volta nas pontas, Home/End, `Esc` devolve o foco ao gatilho, clique fora fecha sem roubar o foco, Tab segue para o elemento seguinte.
 
 **E2E** (`e2e/compra.spec.ts`, Playwright)
-8. Entrar → adicionar produto → alterar quantidade no drawer → finalizar → tela de confirmação com código `PED-…`.
-9. Serviço agendado: escolher dia e horário → adicionar → drawer mostra a data.
+11. Entrar → adicionar produto → alterar quantidade no drawer → finalizar → tela de confirmação com código `PED-…`.
+12. Serviço agendado: escolher dia e horário → adicionar → drawer mostra a data.
 
 ---
 
@@ -214,27 +222,29 @@ Na primeira vez: `npx playwright install chromium`.
 
 ```
 src/
-├── app/
-│   ├── layout.tsx                 # fontes, providers, marcador de sessão
-│   ├── (loja)/                    # chrome da loja: cabeçalho, rodapé, drawer do carrinho
-│   │   ├── page.tsx               # home = catálogo (prefetch + hidratação)
-│   │   ├── categoria/[slug]/      # catálogo filtrado por caminho
-│   │   ├── produto/[id]/          # detalhe com generateMetadata, loading e not-found
-│   │   ├── carrinho/ checkout/ pedido/[id]/ meus-pedidos/ conta/
-│   ├── (auth)/entrar, criar-conta # chrome mínimo
-│   ├── admin/                     # layout escuro + guarda de papel; resumo, produtos, pedidos, categorias, usuários
+├── app/                           # só o que é do Next: metadata, params, prefetch, notFound; cada page.tsx delega a uma view
+│   ├── layout.tsx                 # fontes, registry do styled-components, providers
+│   ├── (store)/                   # layout.tsx = StoreShell; page.tsx → views/Home
+│   │   ├── categoria/[slug]/      # → views/Category (generateMetadata + prefetch ficam aqui)
+│   │   ├── produto/[id]/          # → views/ProductDetail, com loading e not-found
+│   │   ├── carrinho/ checkout/ pedido/[id]/ meus-pedidos/ conta/   # → views/Cart, Checkout, OrderConfirmation, MyOrders, MyOrderDetail, Account
+│   ├── (auth)/entrar, criar-conta # layout.tsx = AuthShell; → views/Login, Register
+│   ├── admin/                     # layout.tsx = AdminShell; → views/AdminDashboard, AdminProducts, AdminProductForm, AdminOrders, AdminOrderDetail, AdminCategories, AdminUsers
 │   ├── api/auth/                  # BFF: entrar, criar-conta, refresh, sair
-│   └── error.tsx, not-found.tsx
+│   └── error.tsx, not-found.tsx, loading.tsx   # telas pequenas, em Tailwind
+├── views/                         # uma pasta por tela: Nome.tsx + style.tsx (styled-components)
+├── styles/                        # ponte com o @theme: tokens.ts (var(--…)), mixins.ts (text, media, srOnly…), primitives.tsx (Container, Panel, Track), registry.tsx
 ├── proxy.ts                       # 1ª camada de proteção de rota (cookie marcador)
 ├── components/
-│   ├── ui/                        # botão, campo, badge, esqueleto, dialog, select, menu, toaster, preço, paginação, faixa-agenda, imagem-produto, tabela
-│   ├── produto/                   # catálogo, grade, card, filtros, calendário, seletor de agendamento, detalhe
-│   ├── carrinho/                  # drawer, linha, resumo, formulário de checkout
-│   ├── pedido/                    # cabeçalho, itens, totais, linha do tempo
-│   ├── layout/                    # cabeçalho, busca, árvore de categorias, guardas, rodapé
-│   ├── conta/                     # formulários de entrar e cadastro
-│   ├── admin/                     # chrome, dashboard, gráfico, tabelas, formulário de produto, categorias
-│   └── estados/                   # vazio, erro, esqueletos, sem-permissão
+│   ├── ui/                        # primitivos em Tailwind, arquivo único: Button, Field, Dialog (Modal/Drawer), Menu, Select, Badge, Price, Skeleton, Logo, Pagination, Table, Toaster, ProductImage, ScheduleStrip
+│   ├── estados/                   # EmptyState, ErrorState, NoPermission, Skeletons (Tailwind)
+│   ├── layout/                    # StoreShell, AuthShell, AdminShell, StoreHeader, Footer, SearchBar, CategoryTree, AccountMenu, CartButton, CatalogLayout (pasta + style.tsx); SessionGuard, ResumeIntent
+│   ├── home/                      # Showcase, BannerCarousel, BenefitsStrip, CategoryShortcuts, ProductRail
+│   ├── produto/                   # ProductCard, ProductGrid, Catalog, Filters, SidebarFilters, Calendar, BookingPicker
+│   ├── carrinho/                  # CartDrawer, CartLine, CartLineConnected, OrderSummary, CheckoutForm
+│   ├── pedido/                    # OrderDetails (OrderHeader, OrderItems, OrderTotals, OrderTimeline)
+│   ├── conta/                     # LoginForm, RegisterForm, TestAccounts
+│   └── admin/                     # AdminPageHeader, Dashboard, BarChart, ProductsTable, OrdersTable, UsersTable, ProductForm, CategoryManager, ChangeStatus
 ├── lib/
 │   ├── api/                       # cliente.ts (fetch + ApiError + renovação), um módulo por recurso, servidor.ts
 │   ├── auth/bff.ts                # cookies e chamadas ao back (server-only)
@@ -262,7 +272,7 @@ e2e/                               # Playwright
 | `npm run check` | typecheck + lint + testes |
 | `npm run format` | Prettier |
 
-Estado na entrega: `typecheck`, `lint` (0 problemas), `test` (43 testes) e `build` (0 avisos) passando.
+Estado na entrega: `typecheck`, `lint` (0 problemas), `format:check`, `test` (68 testes) e `build` (0 avisos) passando.
 
 ---
 
