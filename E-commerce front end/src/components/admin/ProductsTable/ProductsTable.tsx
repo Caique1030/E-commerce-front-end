@@ -4,15 +4,15 @@ import { CalendarDays, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { Erro } from '@/components/estados/erro';
-import { EsqueletoTabela } from '@/components/estados/skeletons';
-import { Vazio } from '@/components/estados/vazio';
-import { Badge } from '@/components/ui/badge';
-import { Botao } from '@/components/ui/botao';
-import { Caixa, Selecao } from '@/components/ui/campo';
-import { ImagemProduto } from '@/components/ui/imagem-produto';
-import { Paginacao } from '@/components/ui/paginacao';
-import { Tabela, Td, Th } from '@/components/ui/tabela';
+import { ErrorState } from '@/components/estados/ErrorState';
+import { TableSkeleton } from '@/components/estados/Skeletons';
+import { EmptyState } from '@/components/estados/EmptyState';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Checkbox, NativeSelect } from '@/components/ui/Field';
+import { ProductImage } from '@/components/ui/ProductImage';
+import { Pagination } from '@/components/ui/Pagination';
+import { Table, Td, Th } from '@/components/ui/Table';
 import { achatarCategorias } from '@/lib/api/categorias';
 import { LIMITE_TABELA } from '@/lib/constantes';
 import { centavosParaBRL, formatarInteiro, pluralizar } from '@/lib/formatadores';
@@ -20,10 +20,11 @@ import { useArvoreCategorias } from '@/lib/hooks/use-categorias';
 import { useChamadaComAtraso } from '@/lib/hooks/use-debounce';
 import { useProdutos } from '@/lib/hooks/use-produtos';
 import type { TipoProduto } from '@/lib/tipos';
-import { cn } from '@/lib/utils';
+import { VisuallyHidden } from '@/styles/primitives';
+import * as S from './style';
 
 /** Tabela administrativa de produtos. Filtros na URL, como no catálogo. */
-export function TabelaProdutos() {
+export function ProductsTable() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -68,17 +69,14 @@ export function TabelaProdutos() {
   const categorias = arvore.data ? achatarCategorias(arvore.data) : [];
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="rounded-card border-borda bg-branco shadow-card flex flex-wrap items-end gap-3 border px-4 py-3">
-        <div className="relative min-w-56 flex-1">
-          <label htmlFor="busca-admin" className="sr-only">
-            Buscar produtos
-          </label>
-          <Search
-            className="text-suave pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-            aria-hidden
-          />
-          <input
+    <S.Root>
+      <S.FilterBar>
+        <S.SearchBox>
+          <S.SearchLabel htmlFor="busca-admin">Buscar produtos</S.SearchLabel>
+          <S.SearchIcon aria-hidden>
+            <Search size={16} />
+          </S.SearchIcon>
+          <S.SearchInput
             id="busca-admin"
             type="search"
             value={textoBusca}
@@ -87,12 +85,11 @@ export function TabelaProdutos() {
               buscarComAtraso(e.target.value);
             }}
             placeholder="Nome, descrição ou marca"
-            className="rounded-campo border-borda-forte bg-branco text-corpo focus:border-tinta h-10 w-full border pr-3 pl-9 focus:outline-none"
           />
-        </div>
-        <label className="text-apoio flex flex-col gap-1">
-          <span className="font-medium">Categoria</span>
-          <Selecao
+        </S.SearchBox>
+        <S.FilterLabel>
+          <S.FilterCaption>Categoria</S.FilterCaption>
+          <NativeSelect
             value={categoria}
             onChange={(e) => atualizar({ categoria: e.target.value || undefined })}
             className="min-w-52"
@@ -100,16 +97,16 @@ export function TabelaProdutos() {
             <option value="">Todas</option>
             {categorias.map((c) => (
               <option key={c.id} value={c.slug}>
-                {'  '.repeat(c.nivel)}
+                {'  '.repeat(c.nivel)}
                 {c.nome}
                 {c.ativo ? '' : ' (inativa)'}
               </option>
             ))}
-          </Selecao>
-        </label>
-        <label className="text-apoio flex flex-col gap-1">
-          <span className="font-medium">Tipo</span>
-          <Selecao
+          </NativeSelect>
+        </S.FilterLabel>
+        <S.FilterLabel>
+          <S.FilterCaption>Tipo</S.FilterCaption>
+          <NativeSelect
             value={tipo}
             onChange={(e) => atualizar({ tipo: e.target.value || undefined })}
             className="min-w-40"
@@ -117,49 +114,54 @@ export function TabelaProdutos() {
             <option value="">Todos</option>
             <option value="SIMPLE">Produto físico</option>
             <option value="BOOKING">Serviço agendado</option>
-          </Selecao>
-        </label>
-        <Caixa
-          rotulo="Incluir inativos"
+          </NativeSelect>
+        </S.FilterLabel>
+        <Checkbox
+          label="Incluir inativos"
           checked={inativos}
           onChange={(e) => atualizar({ inativos: e.target.checked ? '1' : undefined })}
           className="pb-2"
         />
-        <Botao asChild icone={<Plus className="size-4" aria-hidden />} className="ml-auto">
-          <Link href="/admin/produtos/novo">Novo produto</Link>
-        </Botao>
-      </div>
+        <Button
+          as={Link}
+          href="/admin/produtos/novo"
+          icon={<Plus size={16} aria-hidden />}
+          className="ml-auto"
+        >
+          Novo produto
+        </Button>
+      </S.FilterBar>
 
       {produtos.isPending ? (
-        <EsqueletoTabela colunas={7} />
+        <TableSkeleton columns={7} />
       ) : produtos.isError ? (
-        <Erro
-          erro={produtos.error}
-          titulo="Não foi possível carregar os produtos."
-          aoTentarDeNovo={() => void produtos.refetch()}
-          tentandoDeNovo={produtos.isFetching}
+        <ErrorState
+          error={produtos.error}
+          title="Não foi possível carregar os produtos."
+          onRetry={() => void produtos.refetch()}
+          retrying={produtos.isFetching}
         />
       ) : produtos.data.data.length === 0 ? (
-        <Vazio
-          ilustracao="busca"
-          titulo="Nenhum produto com esses filtros."
-          acao={
-            <Botao variante="secundario" onClick={() => router.replace('/admin/produtos')}>
+        <EmptyState
+          illustration="search"
+          title="Nenhum produto com esses filtros."
+          action={
+            <Button variant="secondary" onClick={() => router.replace('/admin/produtos')}>
               Limpar filtros
-            </Botao>
+            </Button>
           }
-          compacto
+          compact
         />
       ) : (
         <>
-          <p className="text-apoio text-suave" aria-live="polite">
+          <S.Count aria-live="polite">
             {pluralizar(produtos.data.meta.total, 'produto', 'produtos')}
-          </p>
-          <Tabela className={cn(produtos.isPlaceholderData && 'opacity-60')}>
+          </S.Count>
+          <Table className={produtos.isPlaceholderData ? 'opacity-60' : undefined}>
             <thead>
               <tr>
                 <Th className="w-14">
-                  <span className="sr-only">Imagem</span>
+                  <VisuallyHidden>Imagem</VisuallyHidden>
                 </Th>
                 <Th>Produto</Th>
                 <Th>Categoria</Th>
@@ -168,82 +170,68 @@ export function TabelaProdutos() {
                 <Th className="text-right">Estoque</Th>
                 <Th>Situação</Th>
                 <Th>
-                  <span className="sr-only">Ações</span>
+                  <VisuallyHidden>Ações</VisuallyHidden>
                 </Th>
               </tr>
             </thead>
             <tbody>
               {produtos.data.data.map((p) => (
-                <tr key={p.id} className={cn(!p.ativo && 'text-suave')}>
+                <S.Row key={p.id} $inactive={!p.ativo}>
                   <Td className="py-1.5">
-                    <div className="rounded-campo border-borda w-12 overflow-hidden border">
-                      <ImagemProduto
+                    <S.Thumb>
+                      <ProductImage
                         src={p.imagemUrl}
                         nome={p.nome}
                         tipo={p.tipo}
                         duracaoMin={p.duracaoMin}
                         sizes="48px"
-                        miniatura
+                        thumbnail
                       />
-                    </div>
+                    </S.Thumb>
                   </Td>
                   <Td>
-                    <Link
-                      href={`/admin/produtos/${p.id}`}
-                      className="text-tinta font-medium hover:underline"
-                    >
-                      {p.nome}
-                    </Link>
-                    <span className="preco text-micro text-suave block">{p.sku}</span>
+                    <S.NameLink href={`/admin/produtos/${p.id}`}>{p.nome}</S.NameLink>
+                    <S.Sku>{p.sku}</S.Sku>
                   </Td>
-                  <Td className="text-apoio">{p.categoria.nome}</Td>
+                  <Td>
+                    <S.CategoryName>{p.categoria.nome}</S.CategoryName>
+                  </Td>
                   <Td>
                     {p.tipo === 'BOOKING' ? (
-                      <Badge
-                        variante="agenda"
-                        icone={<CalendarDays className="size-3" aria-hidden />}
-                      >
+                      <Badge variant="schedule" icon={<CalendarDays size={12} aria-hidden />}>
                         Agendado
                       </Badge>
                     ) : (
-                      <Badge variante="neutro">Físico</Badge>
+                      <Badge variant="neutral">Físico</Badge>
                     )}
                   </Td>
                   <Td className="preco text-right">{centavosParaBRL(p.precoCentavos)}</Td>
-                  <Td
-                    className={cn(
-                      'preco text-right',
-                      p.tipo === 'SIMPLE' && p.estoque === 0 && 'text-alerta',
-                    )}
-                  >
-                    {p.tipo === 'BOOKING' ? '—' : formatarInteiro(p.estoque)}
+                  <Td className="preco text-right">
+                    <S.Stock $out={p.tipo === 'SIMPLE' && p.estoque === 0}>
+                      {p.tipo === 'BOOKING' ? '—' : formatarInteiro(p.estoque)}
+                    </S.Stock>
                   </Td>
                   <Td>
                     {p.ativo ? (
-                      <Badge variante="verde">Ativo</Badge>
+                      <Badge variant="green">Ativo</Badge>
                     ) : (
-                      <Badge variante="alerta">Inativo</Badge>
+                      <Badge variant="danger">Inativo</Badge>
                     )}
                   </Td>
                   <Td className="text-right">
-                    <Link
-                      href={`/admin/produtos/${p.id}`}
-                      className="text-apoio text-acao font-medium hover:underline"
-                    >
-                      Editar
-                    </Link>
+                    <S.EditLink href={`/admin/produtos/${p.id}`}>Editar</S.EditLink>
                   </Td>
-                </tr>
+                </S.Row>
               ))}
             </tbody>
-          </Tabela>
-          <Paginacao
-            pagina={page}
-            totalPaginas={produtos.data.meta.totalPages}
-            aoMudar={(p) => atualizar({ page: p > 1 ? String(p) : undefined }, true)}
+          </Table>
+          <Pagination
+            page={page}
+            totalPages={produtos.data.meta.totalPages}
+            onChange={(p) => atualizar({ page: p > 1 ? String(p) : undefined }, true)}
           />
         </>
       )}
-    </div>
+    </S.Root>
   );
 }
