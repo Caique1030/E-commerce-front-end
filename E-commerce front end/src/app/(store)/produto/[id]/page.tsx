@@ -1,7 +1,7 @@
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { DetalheProduto } from '@/components/produto/detalhe-produto';
+import { ProductDetail } from '@/views/ProductDetail/ProductDetail';
 import { opcoesArvoreCategorias } from '@/lib/api/categorias';
 import { buscarProdutoServidor } from '@/lib/api/servidor';
 import { NOME_LOJA } from '@/lib/constantes';
@@ -46,7 +46,7 @@ export default async function ProdutoPage({ params }: PageProps<'/produto/[id]'>
 
   return (
     <HydrationBoundary state={dehydrate(qc)}>
-      <DetalheProduto id={id} />
+      <ProductDetail id={id} />
     </HydrationBoundary>
   );
 }

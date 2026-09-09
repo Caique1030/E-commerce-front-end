@@ -16,17 +16,17 @@ import { ptBR } from 'date-fns/locale';
 import { useMemo, useState } from 'react';
 import { ehDataPassada, ehDiaDeAtendimento } from '@/lib/agenda';
 import { dataCivilHoje } from '@/lib/formatadores';
-import { cn } from '@/lib/utils';
+import * as S from './style';
 
 const MESES_ADIANTE = 6;
 const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 
-interface CalendarioProps {
+interface CalendarProps {
   /** YYYY-MM-DD selecionado. */
-  valor: string | null;
-  aoEscolher: (data: string) => void;
+  value: string | null;
+  onPick: (data: string) => void;
   /** Dias já consultados e sem horário: ficam desabilitados. */
-  diasSemVaga?: ReadonlySet<string>;
+  unavailableDays?: ReadonlySet<string>;
   className?: string;
 }
 
@@ -35,11 +35,11 @@ function paraCivil(d: Date): string {
 }
 
 /** Calendário mensal: bloqueia passado, fins de semana e dias já sabidos sem vaga. */
-export function Calendario({ valor, aoEscolher, diasSemVaga, className }: CalendarioProps) {
+export function Calendar({ value, onPick, unavailableDays, className }: CalendarProps) {
   const hoje = dataCivilHoje();
   const hojeDate = parse(hoje, 'yyyy-MM-dd', new Date());
   const [mes, setMes] = useState(() =>
-    startOfMonth(valor ? parse(valor, 'yyyy-MM-dd', new Date()) : hojeDate),
+    startOfMonth(value ? parse(value, 'yyyy-MM-dd', new Date()) : hojeDate),
   );
 
   const dias = useMemo(
@@ -58,49 +58,41 @@ export function Calendario({ valor, aoEscolher, diasSemVaga, className }: Calend
   const rotuloMes = format(mes, "MMMM 'de' yyyy", { locale: ptBR });
 
   return (
-    <div className={cn('rounded-card border-borda bg-branco shadow-card border p-3', className)}>
-      <div className="mb-2 flex items-center justify-between">
-        <button
+    <S.Root className={className}>
+      <S.Header>
+        <S.NavButton
           type="button"
           onClick={() => setMes((m) => addMonths(m, -1))}
           disabled={!podeVoltar}
-          className="rounded-campo hover:bg-papel-2 flex size-8 items-center justify-center disabled:opacity-40"
           aria-label="Mês anterior"
         >
-          <ChevronLeft className="size-4" aria-hidden />
-        </button>
-        <p className="text-corpo font-medium capitalize" aria-live="polite">
-          {rotuloMes}
-        </p>
-        <button
+          <ChevronLeft size={16} aria-hidden />
+        </S.NavButton>
+        <S.MonthLabel aria-live="polite">{rotuloMes}</S.MonthLabel>
+        <S.NavButton
           type="button"
           onClick={() => setMes((m) => addMonths(m, 1))}
           disabled={!podeAvancar}
-          className="rounded-campo hover:bg-papel-2 flex size-8 items-center justify-center disabled:opacity-40"
           aria-label="Próximo mês"
         >
-          <ChevronRight className="size-4" aria-hidden />
-        </button>
-      </div>
+          <ChevronRight size={16} aria-hidden />
+        </S.NavButton>
+      </S.Header>
 
-      <div
-        className="grid grid-cols-7 gap-1"
-        role="group"
-        aria-label={`Calendário de ${rotuloMes}`}
-      >
+      <S.Grid role="group" aria-label={`Calendário de ${rotuloMes}`}>
         {DIAS_SEMANA.map((d, i) => (
-          <div key={i} className="text-micro text-suave py-1 text-center font-medium" aria-hidden>
+          <S.Weekday key={i} aria-hidden>
             {d}
-          </div>
+          </S.Weekday>
         ))}
         {dias.map((d) => {
           const civil = paraCivil(d);
           const doMes = isSameMonth(d, mes);
           const passado = ehDataPassada(civil);
           const semAtendimento = !ehDiaDeAtendimento(civil);
-          const semVaga = diasSemVaga?.has(civil) ?? false;
+          const semVaga = unavailableDays?.has(civil) ?? false;
           const desabilitado = !doMes || passado || semAtendimento || semVaga;
-          const selecionado = valor === civil;
+          const selecionado = value === civil;
           const ehHoje = civil === hoje;
           const motivo = passado
             ? 'já passou'
@@ -110,29 +102,26 @@ export function Calendario({ valor, aoEscolher, diasSemVaga, className }: Calend
                 ? 'sem horários livres'
                 : '';
           return (
-            <button
+            <S.Day
               key={civil}
               type="button"
-              onClick={() => aoEscolher(civil)}
+              onClick={() => onPick(civil)}
               disabled={desabilitado}
               aria-pressed={selecionado}
               aria-label={`${format(d, "EEEE, d 'de' MMMM", { locale: ptBR })}${motivo ? ` (${motivo})` : ''}`}
               tabIndex={doMes ? 0 : -1}
-              className={cn(
-                'preco rounded-campo text-apoio flex h-9 items-center justify-center transition-colors',
-                !doMes && 'invisible',
-                desabilitado && doMes && 'text-suave/50 decoration-suave/40 line-through',
-                !desabilitado && 'hover:bg-agenda-suave',
-                selecionado && 'bg-agenda text-branco hover:bg-agenda-2 font-semibold',
-                ehHoje && !selecionado && 'font-semibold underline underline-offset-4',
-              )}
+              $outside={!doMes}
+              $blocked={desabilitado && doMes}
+              $hoverable={!desabilitado}
+              $selected={selecionado}
+              $today={ehHoje && !selecionado}
             >
               {format(d, 'd')}
-            </button>
+            </S.Day>
           );
         })}
-      </div>
-      <p className="text-micro text-suave mt-2">Atendimento de segunda a sexta, das 9h às 18h.</p>
-    </div>
+      </S.Grid>
+      <S.Note>Atendimento de segunda a sexta, das 9h às 18h.</S.Note>
+    </S.Root>
   );
 }
