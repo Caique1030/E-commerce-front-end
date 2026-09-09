@@ -2,11 +2,11 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { GuardaSessao } from '@/components/layout/guardas';
-import { Badge } from '@/components/ui/badge';
-import { Botao } from '@/components/ui/botao';
-import { Campo, Input } from '@/components/ui/campo';
-import { Esqueleto } from '@/components/ui/esqueleto';
+import { SessionGuard } from '@/components/layout/SessionGuard';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Field, Input } from '@/components/ui/Field';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { ehApiError, mensagemDeErro } from '@/lib/api/cliente';
 import { ROTULO_PAPEL } from '@/lib/constantes';
 import { useAtualizarPerfil } from '@/lib/hooks/use-usuarios';
@@ -19,45 +19,47 @@ import {
 } from '@/lib/schemas/usuario';
 import { useSessao } from '@/providers/sessao-provider';
 import { notificar } from '@/stores/ui-store';
+import * as S from './style';
 
-function EsqueletoPagina() {
+function PageSkeleton() {
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6" aria-busy>
-      <Esqueleto className="h-8 w-40" />
-      <Esqueleto className="h-40 w-full" />
-      <Esqueleto className="h-64 w-full" />
-    </div>
+    <S.Skeletons aria-busy>
+      <Skeleton className="h-8 w-40" />
+      <Skeleton className="h-40 w-full" />
+      <Skeleton className="h-64 w-full" />
+    </S.Skeletons>
   );
 }
 
-export default function ContaPage() {
+/** Minha conta: nome e senha. O e-mail e o papel são só leitura. */
+export function Account() {
   return (
-    <GuardaSessao esqueleto={<EsqueletoPagina />}>
-      <Conta />
-    </GuardaSessao>
+    <SessionGuard fallback={<PageSkeleton />}>
+      <AccountContent />
+    </SessionGuard>
   );
 }
 
-function Conta() {
+function AccountContent() {
   const { usuario } = useSessao();
   if (!usuario) return null;
 
   return (
-    <div className="mx-auto flex max-w-xl flex-col gap-6">
+    <S.Root>
       <div>
-        <h1 className="text-h1">Minha conta</h1>
-        <p className="text-corpo text-suave mt-1 flex flex-wrap items-center gap-2">
+        <S.Title>Minha conta</S.Title>
+        <S.Subtitle>
           {usuario.email}
-          <Badge variante="neutro">{ROTULO_PAPEL[usuario.role]}</Badge>
-        </p>
+          <Badge variant="neutral">{ROTULO_PAPEL[usuario.role]}</Badge>
+        </S.Subtitle>
       </div>
-      <FormularioNome nomeAtual={usuario.nome} />
-      <FormularioSenhaConta />
-    </div>
+      <NameForm nomeAtual={usuario.nome} />
+      <PasswordForm />
+    </S.Root>
   );
 }
 
-function FormularioNome({ nomeAtual }: { nomeAtual: string }) {
+function NameForm({ nomeAtual }: { nomeAtual: string }) {
   const atualizar = useAtualizarPerfil();
   const form = useForm<FormularioNome>({
     resolver: zodResolver(formularioNomeSchema),
@@ -80,30 +82,26 @@ function FormularioNome({ nomeAtual }: { nomeAtual: string }) {
   }
 
   return (
-    <form
-      onSubmit={form.handleSubmit(aoEnviar)}
-      noValidate
-      className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5"
-    >
-      <h2 className="text-h2">Seus dados</h2>
-      <Campo rotulo="Nome completo" erro={form.formState.errors.nome?.message} obrigatorio>
+    <S.FormCard onSubmit={form.handleSubmit(aoEnviar)} noValidate>
+      <S.SectionTitle>Seus dados</S.SectionTitle>
+      <Field label="Nome completo" error={form.formState.errors.nome?.message} required>
         {(a11y) => <Input {...a11y} {...form.register('nome')} autoComplete="name" />}
-      </Campo>
+      </Field>
       <div>
-        <Botao
+        <Button
           type="submit"
-          variante="secundario"
-          carregando={atualizar.isPending}
+          variant="secondary"
+          loading={atualizar.isPending}
           disabled={!form.formState.isDirty}
         >
           Salvar nome
-        </Botao>
+        </Button>
       </div>
-    </form>
+    </S.FormCard>
   );
 }
 
-function FormularioSenhaConta() {
+function PasswordForm() {
   const atualizar = useAtualizarPerfil();
   const form = useForm<FormularioSenha>({
     resolver: zodResolver(formularioSenhaSchema),
@@ -134,13 +132,9 @@ function FormularioSenhaConta() {
   const erros = form.formState.errors;
 
   return (
-    <form
-      onSubmit={form.handleSubmit(aoEnviar)}
-      noValidate
-      className="rounded-card border-borda bg-branco shadow-card flex flex-col gap-4 border p-5"
-    >
-      <h2 className="text-h2">Senha</h2>
-      <Campo rotulo="Senha atual" erro={erros.senhaAtual?.message} obrigatorio>
+    <S.FormCard onSubmit={form.handleSubmit(aoEnviar)} noValidate>
+      <S.SectionTitle>Senha</S.SectionTitle>
+      <Field label="Senha atual" error={erros.senhaAtual?.message} required>
         {(a11y) => (
           <Input
             {...a11y}
@@ -149,12 +143,12 @@ function FormularioSenhaConta() {
             autoComplete="current-password"
           />
         )}
-      </Campo>
-      <Campo
-        rotulo="Nova senha"
-        erro={erros.novaSenha?.message}
-        dica="Ao menos 8 caracteres, com letra e número."
-        obrigatorio
+      </Field>
+      <Field
+        label="Nova senha"
+        error={erros.novaSenha?.message}
+        hint="Ao menos 8 caracteres, com letra e número."
+        required
       >
         {(a11y) => (
           <Input
@@ -164,8 +158,8 @@ function FormularioSenhaConta() {
             autoComplete="new-password"
           />
         )}
-      </Campo>
-      <Campo rotulo="Confirmar nova senha" erro={erros.confirmarSenha?.message} obrigatorio>
+      </Field>
+      <Field label="Confirmar nova senha" error={erros.confirmarSenha?.message} required>
         {(a11y) => (
           <Input
             {...a11y}
@@ -174,12 +168,12 @@ function FormularioSenhaConta() {
             autoComplete="new-password"
           />
         )}
-      </Campo>
+      </Field>
       <div>
-        <Botao type="submit" variante="secundario" carregando={atualizar.isPending}>
+        <Button type="submit" variant="secondary" loading={atualizar.isPending}>
           Alterar senha
-        </Botao>
+        </Button>
       </div>
-    </form>
+    </S.FormCard>
   );
 }
