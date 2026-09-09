@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { LinhaItem } from '@/components/carrinho/linha-item';
+import { CartLine } from '@/components/carrinho/CartLine/CartLine';
 import type { ItemCarrinho } from '@/lib/tipos';
 
 function item(sobrescrever: Partial<ItemCarrinho> = {}): ItemCarrinho {
@@ -25,12 +25,12 @@ function item(sobrescrever: Partial<ItemCarrinho> = {}): ItemCarrinho {
   };
 }
 
-describe('LinhaItem', () => {
+describe('CartLine', () => {
   it('com quantidade 1, o botão de diminuir vira "remover" e dispara quantidade zero', async () => {
     const aoAlterar = vi.fn();
     render(
       <ul>
-        <LinhaItem item={item()} aoAlterarQuantidade={aoAlterar} aoRemover={vi.fn()} />
+        <CartLine item={item()} onQuantityChange={aoAlterar} onRemove={vi.fn()} />
       </ul>,
     );
 
@@ -44,10 +44,10 @@ describe('LinhaItem', () => {
     const aoAlterar = vi.fn();
     render(
       <ul>
-        <LinhaItem
+        <CartLine
           item={item({ quantidade: 3, subtotalCentavos: 30000 })}
-          aoAlterarQuantidade={aoAlterar}
-          aoRemover={vi.fn()}
+          onQuantityChange={aoAlterar}
+          onRemove={vi.fn()}
         />
       </ul>,
     );
@@ -64,10 +64,10 @@ describe('LinhaItem', () => {
     const aoAlterar = vi.fn();
     render(
       <ul>
-        <LinhaItem
+        <CartLine
           item={item({ quantidade: 3, subtotalCentavos: 30000 })}
-          aoAlterarQuantidade={aoAlterar}
-          aoRemover={vi.fn()}
+          onQuantityChange={aoAlterar}
+          onRemove={vi.fn()}
         />
       </ul>,
     );
@@ -85,10 +85,10 @@ describe('LinhaItem', () => {
     const aoRemover = vi.fn();
     render(
       <ul>
-        <LinhaItem
+        <CartLine
           item={item({ quantidade: 2, subtotalCentavos: 20000 })}
-          aoAlterarQuantidade={aoAlterar}
-          aoRemover={aoRemover}
+          onQuantityChange={aoAlterar}
+          onRemove={aoRemover}
         />
       </ul>,
     );
@@ -107,15 +107,15 @@ describe('LinhaItem', () => {
   it('avisa quando o preço mudou e quando o item saiu de venda', () => {
     render(
       <ul>
-        <LinhaItem
+        <CartLine
           item={item({ precoAlterado: true, precoNoCarrinhoCentavos: 9000 })}
-          aoAlterarQuantidade={vi.fn()}
-          aoRemover={vi.fn()}
+          onQuantityChange={vi.fn()}
+          onRemove={vi.fn()}
         />
-        <LinhaItem
+        <CartLine
           item={item({ id: 'item-2', disponivel: false })}
-          aoAlterarQuantidade={vi.fn()}
-          aoRemover={vi.fn()}
+          onQuantityChange={vi.fn()}
+          onRemove={vi.fn()}
         />
       </ul>,
     );

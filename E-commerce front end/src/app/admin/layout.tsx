@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { ChromeAdmin } from '@/components/admin/chrome-admin';
+import { AdminShell } from '@/components/layout/AdminShell/AdminShell';
 import { NOME_LOJA } from '@/lib/constantes';
 
 export const metadata: Metadata = {
@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <ChromeAdmin>{children}</ChromeAdmin>;
+  return <AdminShell>{children}</AdminShell>;
 }

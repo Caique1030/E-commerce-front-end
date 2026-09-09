@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Nunito_Sans } from 'next/font/google';
 import { DESCRICAO_LOJA, NOME_LOJA } from '@/lib/constantes';
 import { Providers } from '@/providers/providers';
+import { StyledComponentsRegistry } from '@/styles/registry';
 import './globals.css';
 
 /*
@@ -38,7 +39,9 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="pt-BR" data-scroll-behavior="smooth" className={`${nunito.variable} h-full`}>
       <body className="flex min-h-full flex-col">
-        <Providers>{children}</Providers>
+        <StyledComponentsRegistry>
+          <Providers>{children}</Providers>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );

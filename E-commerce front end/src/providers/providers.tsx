@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import '@/lib/schemas/locale'; // configura as mensagens do Zod em português
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/components/ui/Toaster';
 import { QueryProvider } from './query-provider';
 import { SessaoProvider } from './sessao-provider';
 

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { CardProduto } from '@/components/produto/card-produto';
+import { ProductCard } from '@/components/produto/ProductCard/ProductCard';
 import type { Produto } from '@/lib/tipos';
 
 function produto(sobrescrever: Partial<Produto> = {}): Produto {
@@ -25,10 +25,10 @@ function produto(sobrescrever: Partial<Produto> = {}): Produto {
   };
 }
 
-describe('CardProduto', () => {
+describe('ProductCard', () => {
   it('produto físico mostra "Adicionar", estoque e chama o callback', async () => {
     const aoAdicionar = vi.fn();
-    render(<CardProduto produto={produto()} aoAdicionar={aoAdicionar} />);
+    render(<ProductCard produto={produto()} onAdd={aoAdicionar} />);
 
     expect(screen.getByRole('heading', { name: 'Fone Bluetooth XZ' })).toBeInTheDocument();
     expect(screen.getByText('12 em estoque')).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe('CardProduto', () => {
 
   it('serviço agendado mostra "Escolher data" (link para o produto), rótulo e faixa de agenda', () => {
     render(
-      <CardProduto
+      <ProductCard
         produto={produto({
           tipo: 'BOOKING',
           nome: 'Montagem de Móveis',
@@ -49,7 +49,7 @@ describe('CardProduto', () => {
           capacidadeSlot: 3,
           estoque: 0,
         })}
-        aoAdicionar={vi.fn()}
+        onAdd={vi.fn()}
       />,
     );
 
@@ -66,7 +66,7 @@ describe('CardProduto', () => {
   });
 
   it('produto esgotado desabilita o botão e diz o motivo', () => {
-    render(<CardProduto produto={produto({ estoque: 0 })} aoAdicionar={vi.fn()} />);
+    render(<ProductCard produto={produto({ estoque: 0 })} onAdd={vi.fn()} />);
     const botao = screen.getByRole('button', { name: /esgotado/i });
     expect(botao).toBeDisabled();
     expect(screen.getAllByText('Esgotado').length).toBeGreaterThan(0);

@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Vazio } from '@/components/estados/vazio';
-import { Botao } from '@/components/ui/botao';
-import { Logo } from '@/components/ui/logo';
+import { EmptyState } from '@/components/estados/EmptyState';
+import { Button } from '@/components/ui/Button';
+import { Logo } from '@/components/ui/Logo';
 
 export default function NaoEncontradoGlobal() {
   return (
@@ -12,15 +12,15 @@ export default function NaoEncontradoGlobal() {
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center px-4">
-        <Vazio
+        <EmptyState
           className="painel w-full max-w-lg"
-          ilustracao="busca"
-          titulo="Não encontramos esta página."
-          descricao="Confira o endereço ou volte para o catálogo."
-          acao={
-            <Botao asChild>
-              <Link href="/">Ir para a loja</Link>
-            </Botao>
+          illustration="search"
+          title="Não encontramos esta página."
+          description="Confira o endereço ou volte para o catálogo."
+          action={
+            <Button as={Link} href="/">
+              Ir para a loja
+            </Button>
           }
         />
       </main>
