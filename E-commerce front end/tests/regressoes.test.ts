@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { escala } from '@/components/admin/grafico-barras';
+import { escala } from '@/components/admin/BarChart/BarChart';
 import { formularioCadastroSchema, registerSchema } from '@/lib/schemas/auth';
 import { formularioProdutoSchema } from '@/lib/schemas/produto';
 import { destinoSeguro } from '@/lib/utils';
