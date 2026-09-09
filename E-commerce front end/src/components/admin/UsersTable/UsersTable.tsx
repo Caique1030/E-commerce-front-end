@@ -3,27 +3,28 @@
 import { Search } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { Erro } from '@/components/estados/erro';
-import { EsqueletoTabela } from '@/components/estados/skeletons';
-import { Vazio } from '@/components/estados/vazio';
-import { Badge } from '@/components/ui/badge';
-import { Botao } from '@/components/ui/botao';
-import { Caixa, Selecao } from '@/components/ui/campo';
-import { DialogRaiz, ModalConteudo } from '@/components/ui/dialog';
-import { Paginacao } from '@/components/ui/paginacao';
-import { Tabela, Td, Th } from '@/components/ui/tabela';
+import { ErrorState } from '@/components/estados/ErrorState';
+import { TableSkeleton } from '@/components/estados/Skeletons';
+import { EmptyState } from '@/components/estados/EmptyState';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Checkbox, NativeSelect } from '@/components/ui/Field';
+import { Modal } from '@/components/ui/Dialog';
+import { Pagination } from '@/components/ui/Pagination';
+import { Table, Td, Th } from '@/components/ui/Table';
 import { LIMITE_TABELA, ROTULO_PAPEL } from '@/lib/constantes';
 import { formatarData, pluralizar } from '@/lib/formatadores';
 import { useChamadaComAtraso } from '@/lib/hooks/use-debounce';
 import { useAtualizarUsuario, useRemoverUsuario, useUsuarios } from '@/lib/hooks/use-usuarios';
 import type { Papel, Usuario } from '@/lib/tipos';
-import { cn } from '@/lib/utils';
 import { useSessao } from '@/providers/sessao-provider';
 import { notificar } from '@/stores/ui-store';
+import { VisuallyHidden } from '@/styles/primitives';
+import * as S from './style';
 
 const PAPEIS: Papel[] = ['CLIENTE', 'COMERCIAL', 'ADMIN'];
 
-export function TabelaUsuarios() {
+export function UsersTable() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { usuario: eu } = useSessao();
@@ -65,17 +66,14 @@ export function TabelaUsuarios() {
   const remover = useRemoverUsuario();
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="rounded-card border-borda bg-branco shadow-card flex flex-wrap items-end gap-3 border px-4 py-3">
-        <div className="relative min-w-56 flex-1">
-          <label htmlFor="busca-usuarios" className="sr-only">
-            Buscar usuários
-          </label>
-          <Search
-            className="text-suave pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
-            aria-hidden
-          />
-          <input
+    <S.Root>
+      <S.FilterBar>
+        <S.SearchBox>
+          <S.SearchLabel htmlFor="busca-usuarios">Buscar usuários</S.SearchLabel>
+          <S.SearchIcon aria-hidden>
+            <Search size={16} />
+          </S.SearchIcon>
+          <S.SearchInput
             id="busca-usuarios"
             type="search"
             value={textoBusca}
@@ -84,12 +82,11 @@ export function TabelaUsuarios() {
               buscarComAtraso(e.target.value);
             }}
             placeholder="Nome ou e-mail"
-            className="rounded-campo border-borda-forte bg-branco text-corpo focus:border-tinta h-10 w-full border pr-3 pl-9 focus:outline-none"
           />
-        </div>
-        <label className="text-apoio flex flex-col gap-1">
-          <span className="font-medium">Papel</span>
-          <Selecao
+        </S.SearchBox>
+        <S.FilterLabel>
+          <S.FilterCaption>Papel</S.FilterCaption>
+          <NativeSelect
             value={role}
             onChange={(e) => atualizar({ role: e.target.value || undefined })}
             className="min-w-44"
@@ -100,41 +97,41 @@ export function TabelaUsuarios() {
                 {ROTULO_PAPEL[p]}
               </option>
             ))}
-          </Selecao>
-        </label>
-        <Caixa
-          rotulo="Incluir inativos"
+          </NativeSelect>
+        </S.FilterLabel>
+        <Checkbox
+          label="Incluir inativos"
           checked={inativos}
           onChange={(e) => atualizar({ inativos: e.target.checked ? '1' : undefined })}
           className="pb-2"
         />
-      </div>
+      </S.FilterBar>
 
       {usuarios.isPending ? (
-        <EsqueletoTabela colunas={5} />
+        <TableSkeleton columns={5} />
       ) : usuarios.isError ? (
-        <Erro
-          erro={usuarios.error}
-          titulo="Não foi possível carregar os usuários."
-          aoTentarDeNovo={() => void usuarios.refetch()}
-          tentandoDeNovo={usuarios.isFetching}
+        <ErrorState
+          error={usuarios.error}
+          title="Não foi possível carregar os usuários."
+          onRetry={() => void usuarios.refetch()}
+          retrying={usuarios.isFetching}
         />
       ) : usuarios.data.data.length === 0 ? (
-        <Vazio
-          titulo="Nenhum usuário com esses filtros."
-          compacto
-          acao={
-            <Botao variante="secundario" onClick={() => router.replace('/admin/usuarios')}>
+        <EmptyState
+          title="Nenhum usuário com esses filtros."
+          compact
+          action={
+            <Button variant="secondary" onClick={() => router.replace('/admin/usuarios')}>
               Limpar filtros
-            </Botao>
+            </Button>
           }
         />
       ) : (
         <>
-          <p className="text-apoio text-suave" aria-live="polite">
+          <S.Count aria-live="polite">
             {pluralizar(usuarios.data.meta.total, 'usuário', 'usuários')}
-          </p>
-          <Tabela className={cn(usuarios.isPlaceholderData && 'opacity-60')}>
+          </S.Count>
+          <Table className={usuarios.isPlaceholderData ? 'opacity-60' : undefined}>
             <thead>
               <tr>
                 <Th>Nome</Th>
@@ -143,7 +140,7 @@ export function TabelaUsuarios() {
                 <Th>Desde</Th>
                 <Th>Situação</Th>
                 <Th>
-                  <span className="sr-only">Ações</span>
+                  <VisuallyHidden>Ações</VisuallyHidden>
                 </Th>
               </tr>
             </thead>
@@ -151,19 +148,17 @@ export function TabelaUsuarios() {
               {usuarios.data.data.map((u) => {
                 const souEu = u.id === eu?.id;
                 return (
-                  <tr key={u.id} className={cn(!u.ativo && 'text-suave')}>
-                    <Td className="font-medium">
-                      {u.nome}
-                      {souEu && (
-                        <span className="text-micro text-suave ml-2 font-normal">(você)</span>
-                      )}
-                    </Td>
-                    <Td className="text-apoio">{u.email}</Td>
+                  <S.Row key={u.id} $inactive={!u.ativo}>
                     <Td>
-                      <label className="sr-only" htmlFor={`papel-${u.id}`}>
-                        Papel de {u.nome}
-                      </label>
-                      <Selecao
+                      <S.Name>{u.nome}</S.Name>
+                      {souEu && <S.Me>(você)</S.Me>}
+                    </Td>
+                    <Td>
+                      <S.Email>{u.email}</S.Email>
+                    </Td>
+                    <Td>
+                      <S.HiddenLabel htmlFor={`papel-${u.id}`}>Papel de {u.nome}</S.HiddenLabel>
+                      <NativeSelect
                         id={`papel-${u.id}`}
                         value={u.role}
                         disabled={souEu || alterar.isPending}
@@ -186,73 +181,73 @@ export function TabelaUsuarios() {
                             {ROTULO_PAPEL[p]}
                           </option>
                         ))}
-                      </Selecao>
+                      </NativeSelect>
                     </Td>
-                    <Td className="preco text-apoio">{formatarData(u.criadoEm)}</Td>
+                    <Td className="preco">
+                      <S.CreatedAt>{formatarData(u.criadoEm)}</S.CreatedAt>
+                    </Td>
                     <Td>
                       {u.ativo ? (
-                        <Badge variante="verde">Ativo</Badge>
+                        <Badge variant="green">Ativo</Badge>
                       ) : (
-                        <Badge variante="alerta">Inativo</Badge>
+                        <Badge variant="danger">Inativo</Badge>
                       )}
                     </Td>
                     <Td className="text-right whitespace-nowrap">
-                      <button
+                      <S.ToggleButton
                         type="button"
                         disabled={souEu || alterar.isPending}
                         onClick={() => alterar.mutate({ id: u.id, dados: { ativo: !u.ativo } })}
-                        className="text-apoio text-acao disabled:text-suave mr-3 font-medium hover:underline disabled:no-underline"
                       >
                         {u.ativo ? 'Desativar' : 'Reativar'}
-                      </button>
-                      <button
+                      </S.ToggleButton>
+                      <S.RemoveButton
                         type="button"
                         disabled={souEu}
                         onClick={() => setRemovendo(u)}
-                        className="text-apoio text-alerta disabled:text-suave font-medium hover:underline disabled:no-underline"
                       >
                         Remover
-                      </button>
+                      </S.RemoveButton>
                     </Td>
-                  </tr>
+                  </S.Row>
                 );
               })}
             </tbody>
-          </Tabela>
-          <Paginacao
-            pagina={page}
-            totalPaginas={usuarios.data.meta.totalPages}
-            aoMudar={(p) => atualizar({ page: p > 1 ? String(p) : undefined }, true)}
+          </Table>
+          <Pagination
+            page={page}
+            totalPages={usuarios.data.meta.totalPages}
+            onChange={(p) => atualizar({ page: p > 1 ? String(p) : undefined }, true)}
           />
         </>
       )}
 
-      <DialogRaiz open={!!removendo} onOpenChange={(aberto) => !aberto && setRemovendo(null)}>
-        {removendo && (
-          <ModalConteudo
-            titulo={`Remover ${removendo.nome}?`}
-            descricao="A conta deixa de existir para login. Pedidos antigos continuam no histórico."
-            rodape={
-              <>
-                <Botao variante="secundario" onClick={() => setRemovendo(null)}>
-                  Manter
-                </Botao>
-                <Botao
-                  variante="perigo"
-                  carregando={remover.isPending}
-                  onClick={() =>
-                    remover.mutate(removendo.id, { onSuccess: () => setRemovendo(null) })
-                  }
-                >
-                  Remover
-                </Botao>
-              </>
-            }
-          >
-            <p className="text-corpo text-suave">{removendo.email}</p>
-          </ModalConteudo>
-        )}
-      </DialogRaiz>
-    </div>
+      {removendo && (
+        <Modal
+          open
+          onOpenChange={(aberto) => !aberto && setRemovendo(null)}
+          title={`Remover ${removendo.nome}?`}
+          description="A conta deixa de existir para login. Pedidos antigos continuam no histórico."
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setRemovendo(null)}>
+                Manter
+              </Button>
+              <Button
+                variant="danger"
+                loading={remover.isPending}
+                onClick={() =>
+                  remover.mutate(removendo.id, { onSuccess: () => setRemovendo(null) })
+                }
+              >
+                Remover
+              </Button>
+            </>
+          }
+        >
+          <S.ModalText>{removendo.email}</S.ModalText>
+        </Modal>
+      )}
+    </S.Root>
   );
 }
