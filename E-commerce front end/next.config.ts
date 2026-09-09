@@ -37,6 +37,8 @@ function csp(): string {
 }
 
 const nextConfig: NextConfig = {
+  // Transform SWC do styled-components: nomes de classe estáveis entre servidor e cliente.
+  compiler: { styledComponents: true },
   images: {
     // Único CDN de imagens do catálogo (seed da DummyJSON). Qualquer outro host é bloqueado.
     remotePatterns: [new URL(`${CDN_IMAGENS}/**`)],
